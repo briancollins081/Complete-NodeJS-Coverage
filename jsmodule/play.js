@@ -11,5 +11,9 @@ const hobbies = ['Sports', 'Cooking'];
 //     console.log(hobby);
 // }
 
-console.log(hobbies.map(h =>'Hobby: '+h));
+// console.log(hobbies.map(h =>'Hobby: '+h));
+// console.log(hobbies);
+
+// Reference Type can be edited since the const holds the reference to an array or object
+hobbies.push('Programming');
 console.log(hobbies);
