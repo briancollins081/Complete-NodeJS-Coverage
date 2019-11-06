@@ -33,14 +33,15 @@ requestHandler = (req, res) => {
             // split data to obtain string part from the user and that from the form
             const dataFetched = parsedData.split('=');
             //lets log the data with its fields
-            console.log("Field from form: "+dataFetched[0]+"<br/>Value of the field: "+dataFetched[1]);            
+            console.log("Field from form: "+dataFetched[0]+"\nValue of the field: "+dataFetched[1]);            
         });
+        res.statusCode(302);
+        res.setHeader('Location', '/');
+        return res.end();
     }
-    res.write('<!DOCTYPE html><html><head><title>Assignment Task: Section 3</title></head>');
-    res.write('<body>');
-    res.write('<h1>Our User Lists are:</h1><hr/><ol><li>Abc User 1</li><li>Abc User 2</li><li>Abc User 3</li><li>Abc User 4</li><li>Abc User 5</li><li>Abc User 6</li></ol>');
-    res.write('</body></html>');
-    return res.end();
+   res.statusCode(302);
+   res.setHeader('Location', '/');
+   res.end();
 };
 
 exports.handler = requestHandler;
