@@ -21,16 +21,18 @@ const server = http.createServer((req,res)=>{
             body.push(chunk);
         });
         //work on the data fetched from the post method
-        req.on('end', ()=>{
+        return req.on('end', ()=>{
             const parseBody = Buffer.concat(body).toString();
             const message = parseBody.split('=')[1];
             console.log(parseBody);
-            fs.writeFileSync('message.txt', message);
-
+            fs.writeFile('message.txt', message, (err)=>{
+                res.statusCode = 302;
+                res.setHeader('Location', '/');
+                return res.end();
+            }); // blocks until write is done
+            
         });
-        res.statusCode = 302;
-        res.setHeader('Location', '/');
-        return res.end();
+        
     }
     if(url==='message')
     res.setHeader('Content-Type','text/html');
