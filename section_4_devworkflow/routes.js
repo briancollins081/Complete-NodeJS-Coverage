@@ -18,9 +18,9 @@ requestHandler = (req, res) => {
         req.on('data', (chunk) => {
             console.log(chunk);
             body.push(chunk);
-        });
+        });  
         //work on the data fetched from the post method
-        return req.on('end', () => {
+        return req.on('end', () => { 
             const parseBody = Buffer.concat(body).toString();
             const message = parseBody.split('=')[1];
             console.log(parseBody);
@@ -32,7 +32,9 @@ requestHandler = (req, res) => {
 
         });
 
+
     }
+
     if (url === 'message')
         res.setHeader('Content-Type', 'text/html');
     res.write('<html>');
