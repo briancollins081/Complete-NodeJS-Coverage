@@ -2,7 +2,7 @@
 <b>Covers Node JS key areas</b>
 <hr/>
 <p>
-  These includes:<br>
+  These include:<br>
   <ol>
     <li>Model View Controller</li>
     <li>REST APIs</li>
