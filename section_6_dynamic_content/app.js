@@ -6,7 +6,7 @@ const expressHbs = require('express-handlebars');
 
 const app = express();
 
-app.engine('hbs', expressHbs()); // engine not defined within the node library
+app.engine('hbs', expressHbs({layoutsDir: 'views/layouts', defaultLayout: 'main-layout', extname:'hbs'})); // engine not defined within the node library
 app.set('view engine', 'hbs');
 app.set('views','views');
 
