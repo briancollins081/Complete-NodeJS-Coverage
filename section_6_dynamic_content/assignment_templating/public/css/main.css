@@ -1,0 +1,13 @@
+body{
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-weight: 500;
+    color: #414141;
+    font-size: 14px;
+}
+form,
+h1 {
+    margin: 2rem;
+}
+h1{
+    text-align: left;
+}

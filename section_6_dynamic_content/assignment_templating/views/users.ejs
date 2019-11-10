@@ -1,0 +1,25 @@
+<%- include('includes/head.ejs') %>
+
+<body>
+    <%- include('includes/header.ejs') %>
+    <main>
+        <% if(userList.length > 0){ %>
+        <h1>Existing Users</h1>
+        <div>
+            <ul style="list-style: none;">
+                <% for(let user of userList) { %>
+                <li><b><%= user.username %></b>
+                    <ul>
+                        <li>Email: <%= user.usermail %></li>
+                    </ul>
+                </li>
+                <% } %>
+            </ul>
+        </div>
+        <% } else { %>
+        <div>
+            <h1>No users exist at the moment.</h1>
+        </div>
+        <% } %>
+    </main>
+    <%- include('includes/tail.ejs') %>
