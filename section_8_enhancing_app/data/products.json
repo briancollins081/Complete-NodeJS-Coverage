@@ -1,1 +1,6 @@
-[{"title":"Fake Hardware"},{"title":"Elegance Trials"},{"title":"Book 2"}]
+[{
+    "title": "ABC Book I",
+    "imageUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQPGP82w9XD1UViWlgcyQOpM6d2MIyqkGejhiq3eoa1u0gk3uFT",
+    "description": "An awesome sex education book for teenagers.",
+    "price": "21.99"
+}]
