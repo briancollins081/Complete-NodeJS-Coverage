@@ -14,7 +14,7 @@ const userOutRoutes = require('./routes/users');
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(express.static(path.join(__dirname,'public')));
 
-app.use('/user', userInRoutes.router);
+app.use('/user', userInRoutes);
 app.use(userOutRoutes);
 
 app.use('/', (req, res, next)=>{
