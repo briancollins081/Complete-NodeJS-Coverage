@@ -193,6 +193,9 @@ form {
   color: white;
 }
 
+.centered{
+  text-align: center;
+}
 @media (min-width: 768px) {
   .main-header__nav {
     display: flex;
