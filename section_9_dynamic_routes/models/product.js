@@ -44,7 +44,19 @@ module.exports = class Product {
       }   
     });
   }
-
+  static delete(productToDeleteId){
+    getProductsFromFile(products => {
+      if (productToDeleteId) {
+          const productToDeleteIndex = products.findIndex(p=>p.id===productToDeleteId);
+          const productsArray = [...products];
+          productsArray.splice(productToDeleteIndex, 1);
+          fs.writeFile(p, JSON.stringify(productsArray), err =>{
+            console.log(err);
+          });
+      }
+    });
+    
+  }
   static fetchAll(cb) {
     getProductsFromFile(cb);
   }
@@ -55,4 +67,5 @@ module.exports = class Product {
       cb(product);
     });
   }
+
 };
