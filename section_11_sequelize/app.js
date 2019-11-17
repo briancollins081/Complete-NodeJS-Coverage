@@ -42,8 +42,8 @@ Cart.belongsTo(User); // adds userID to the cart
 Cart.belongsToMany(Product, { through: CartItem });
 Product.belongsToMany(Cart, { through: CartItem });
 
-sequelize.sync({ force: true })
-// sequelize.sync()
+// sequelize.sync({ force: true }) //recreates a the database enforcing all the new associations
+sequelize.sync()
     .then(result => {
         return User.findByPk(1);
     })
@@ -56,8 +56,11 @@ sequelize.sync({ force: true })
         }
         return user;
     })
-    .then(user=>{
+    .then(user => {
         // console.log(user);
+        return user.createCart();
+    })
+    .then(cart => {
         app.listen(3000);
     })
     .catch(err=>{
