@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const errorController = require('./controllers/error');
 
 const mongoConnect = require('./util/database').mongoConnect;
+const User = require('./models/user.js');
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
@@ -17,13 +18,12 @@ app.set('views', 'views');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use((req, res, next) => {
-    // User.findByPk(1)
-    //     .then(user=>{
-    //         req.user=user;
-    //         next();
-    //     })
-    //     .catch(err=>console.log(err));
-    next();
+    User.findById(new mongodb.ObjectId('5dde3133f8e6ef2a472bc611'))
+        .then(user => {
+            req.user = user;
+            next();
+        })
+        .catch(err => console.log(err));
 });
 
 app.use('/admin', adminRoutes);
