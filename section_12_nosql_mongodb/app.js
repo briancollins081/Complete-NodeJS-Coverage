@@ -21,7 +21,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use((req, res, next) => {
     User.findById(new mongodb.ObjectId('5dde3133f8e6ef2a472bc611'))
         .then(user => {
-            req.user = user;
+            req.user = new User(user.username, user.email, user.cart, user._id);
+            // console.log(`The new user fetched`);
+            // console.log(req.user);
             next();
         })
         .catch(err => console.log(err));
