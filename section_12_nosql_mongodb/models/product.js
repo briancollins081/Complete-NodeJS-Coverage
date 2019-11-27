@@ -1,5 +1,5 @@
 const getDb = require("../util/database").getDb;
-const mongodb = require('mongodb');
+const mongodb = require("mongodb");
 
 class Product {
     constructor(title, price, description, imageUrl, id) {
@@ -14,20 +14,18 @@ class Product {
         const db = getDb();
         let dbOp;
         if (this._id) {
-            dbOp = db.collection("products")
-                .updateOne({ _id: new mongodb.ObjectId(this._id) }, { $set: { this } })
+            dbOp = db
+                .collection("products")
+                .updateOne({ _id: new mongodb.ObjectId(this._id) }, { $set: this });
         } else {
             dbOp = db.collection("products").insertOne(this);
         }
 
-
-        return dbOp;
-        .collection("products")
-            .insertOne(this)
-            .then(result => {
+        return dbOp
+            .then((result) => {
                 console.log(result);
             })
-            .catch(err => console.log(err));
+            .catch((err) => console.log(err));
     }
 
     static fetchAll() {
@@ -36,11 +34,11 @@ class Product {
             .collection("products")
             .find()
             .toArray()
-            .then(products => {
+            .then((products) => {
                 console.log(products);
                 return products;
             })
-            .catch(err => console.log(err));
+            .catch((err) => console.log(err));
     }
     static findById(pid) {
         const db = getDb();
@@ -48,11 +46,11 @@ class Product {
             .collection("products")
             .find({ _id: new mongodb.ObjectId(pid) })
             .next()
-            .then(product => {
+            .then((product) => {
                 console.log(product);
                 return product;
             })
-            .catch(err => console.log(err));
+            .catch((err) => console.log(err));
     }
 }
 
