@@ -71,6 +71,9 @@ exports.getCart = (req, res, next) => {
 
 exports.postCart = (req, res, next) => {
     const pid = req.body.productId;
+    console.log('product id is:');
+    console.log(pid);
+
     Product.findById(pid)
         .then((product) => {
             console.log(product);

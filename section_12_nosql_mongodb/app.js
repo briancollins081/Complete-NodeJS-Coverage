@@ -1,35 +1,33 @@
-const path = require('path');
+const path = require("path");
 
-const express = require('express');
-const bodyParser = require('body-parser');
-const mongodb = require('mongodb');
+const express = require("express");
+const bodyParser = require("body-parser");
+const mongodb = require("mongodb");
 
-const errorController = require('./controllers/error');
+const errorController = require("./controllers/error");
 
-const mongoConnect = require('./util/database').mongoConnect;
-const User = require('./models/user.js');
+const mongoConnect = require("./util/database").mongoConnect;
+const User = require("./models/user.js");
 
-const adminRoutes = require('./routes/admin');
-const shopRoutes = require('./routes/shop');
+const adminRoutes = require("./routes/admin");
+const shopRoutes = require("./routes/shop");
 const app = express();
 
-app.set('view engine', 'ejs');
-app.set('views', 'views');
+app.set("view engine", "ejs");
+app.set("views", "views");
 
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "public")));
 app.use((req, res, next) => {
-    User.findById(new mongodb.ObjectId('5dde3133f8e6ef2a472bc611'))
-        .then(user => {
-            req.user = new User(user.username, user.email, user.cart, user._id);
-            // console.log(`The new user fetched`);
-            // console.log(req.user);
+    User.findById("5ddf58153efdfb4712ef78b2")
+        .then((user) => {
+            const cart = user.cart ? user.cart : { items: [] };
+            req.user = new User(user.name, user.email, cart, user._id);
             next();
         })
-        .catch(err => console.log(err));
+        .catch((err) => console.log(err));
 });
-
-app.use('/admin', adminRoutes);
+app.use("/admin", adminRoutes);
 app.use(shopRoutes);
 
 app.use(errorController.get404);
