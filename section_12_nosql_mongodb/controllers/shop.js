@@ -71,7 +71,7 @@ exports.postCart = (req, res, next) => {
 
     Product.findById(pid)
         .then((product) => {
-            console.log(product);
+            // console.log(product);
             return req.user.addToCart(product);
         })
         .then((result) => {
@@ -80,50 +80,12 @@ exports.postCart = (req, res, next) => {
             res.redirect('/cart');
         })
         .catch((err) => console.log(err));
-
-    // let fetchedCart;
-    // let newQuantity = 1;
-    // req.user.getCart()
-    //     .then(cart => {
-    //         fetchedCart = cart;
-    //         return cart.getProducts({ where: { id: pid } });
-    //     })
-    //     .then(products => {
-    //         let product;
-    //         if (products.length > 0) {
-    //             product = products[0];
-    //         }
-    //         if (product) {
-    //             const oldQty = product.cartItem.quantity; //by sequelize
-    //             newQuantity = oldQty + 1;
-    //             return product;
-    //         }
-    //         return Product.findByPk(pid);
-    //     })
-    //     .then(product => {
-    //         return fetchedCart.addProduct(product, {
-    //             through: {
-    //                 quantity: newQuantity
-    //             }
-    //         });
-
-    //     })
-    //     .then(() => res.redirect('/cart'))
-    //     .catch(err => console.log(err));
 };
 
 exports.postCartDeleteItem = (req, res, next) => {
     const productId = req.body.productId;
     req.user
-        .getCart()
-        .then((cart) => {
-            return cart.getProducts({ where: { id: productId } });
-        })
-        .then((products) => {
-            const product = products[0];
-            //remove prod from cartite table
-            return product.cartItem.destroy();
-        })
+        .deleteItemFromCart(productId)
         .then((result) => {
             res.redirect("/cart");
         })
