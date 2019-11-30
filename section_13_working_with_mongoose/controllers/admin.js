@@ -63,17 +63,15 @@ exports.postEditProduct = (req, res, next) => {
     const uimageurl = req.body.imageUrl;
     const udescritpion = req.body.description;
 
-    const product = new Product(
-        utitle,
-        uprice,
-        udescritpion,
-        uimageurl,
-        new mongodb.ObjectId(prodId)
-    );
+    Product.findById(prodId).then(product => {
+            product.title = utitle;
+            product.price = uprice;
+            product.imageUrl = uimageurl;
+            product.description = udescritpion;
 
-    product
-        .save()
-        .then((product) => {
+            return product.save();
+
+        }).then((product) => {
             console.log("Product UPDATED!!");
             res.redirect("/admin/products");
         })
@@ -90,8 +88,7 @@ exports.postDeleteProduct = (req, res, next) => {
         .catch((err) => console.log(err));
 };
 exports.getProducts = (req, res, next) => {
-    //req.user.getProducts()
-    Product.fetchAll()
+    Product.find()
         .then((products) => {
             res.render("admin/products", {
                 prods: products,
