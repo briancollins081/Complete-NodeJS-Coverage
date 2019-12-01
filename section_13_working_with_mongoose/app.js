@@ -22,7 +22,7 @@ app.use((req, res, next) => {
     User.findById("5de38ed0a6675b39a17d0056")
         .then((user) => {
             const cart = user.cart ? user.cart : { items: [] };
-            req.user = new User(user.name, user.email, cart, user._id);
+            req.user = new User({ name: user.name, email: user.email, cart: cart, _id: user._id });
             next();
         })
         .catch((err) => console.log(err));
