@@ -33,15 +33,6 @@ app.use(session({
     store: store
 }));
 
-app.use((req, res, next) => {
-    User.findById('5bab316ce0a7c75f783cb8a8')
-        .then(user => {
-            req.user = user;
-            next();
-        })
-        .catch(err => console.log(err));
-});
-
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
@@ -49,7 +40,7 @@ app.use(errorController.get404);
 
 mongoose
     .connect(
-        MONGODB_URI
+        MONGODB_URI, { useUnifiedTopology: true, useNewUrlParser: true }
     )
     .then(result => {
         User.findOne().then(user => {
