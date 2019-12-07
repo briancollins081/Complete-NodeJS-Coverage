@@ -32,7 +32,19 @@ app.use(session({
     setUninitialized: false,
     store: store
 }));
-
+//create a user based on data fetched from session which is not a User object but a data object
+app.use((req, res, next) => {
+    if (!req.session.user) {
+        console.log("User is undefined");
+        next();
+    } else
+        User.findById(req.session.user._id)
+        .then(user => {
+            req.user = user;
+            next();
+        })
+        .catch(err => console.log(err));
+});
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);

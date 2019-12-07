@@ -87,7 +87,7 @@ exports.getProducts = (req, res, next) => {
                 prods: products,
                 pageTitle: 'Admin Products',
                 path: '/admin/products',
-                logedInUser: req.session.user
+                logedInUser: req.user
             });
         })
         .catch(err => console.log(err));
