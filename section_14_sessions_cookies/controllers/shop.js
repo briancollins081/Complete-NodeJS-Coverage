@@ -47,26 +47,32 @@ exports.getIndex = (req, res, next) => {
 };
 
 exports.getCart = (req, res, next) => {
-    req.session.user
-        .populate('cart.items.productId')
-        .execPopulate()
-        .then(user => {
-            const products = user.cart.items;
-            res.render('shop/cart', {
-                path: '/cart',
-                pageTitle: 'Your Cart',
-                products: products,
-                logedInUser: req.session.user
-            });
-        })
-        .catch(err => console.log(err));
+    if (req.session.user) {
+        req.session.user
+            .populate('cart.items.productId')
+            .execPopulate()
+            .then(user => {
+                const products = user.cart.items;
+                res.render('shop/cart', {
+                    path: '/cart',
+                    pageTitle: 'Your Cart',
+                    products: products,
+                    logedInUser: req.session.user
+                });
+            })
+            .catch(err => console.log(err));
+    }
 };
 
 exports.postCart = (req, res, next) => {
     const prodId = req.body.productId;
     Product.findById(prodId)
         .then(product => {
-            return req.session.user.addToCart(product);
+            if (!req.session.user) {
+                return null;
+            } else
+                return req.session.user.addToCart(product);
+
         })
         .then(result => {
             console.log(result);
