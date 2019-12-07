@@ -1,10 +1,5 @@
 const User = require('../models/user');
 exports.getLogin = (req, res, next) => {
-    /* const isLoggedIn = req
-        .get('Cookie')
-        .split(';')[2]
-        .trim()
-        .split('=')[1]; */
     console.log(req.session.isLoggedIn);
     res.render('auth/login', {
         path: '/login',
@@ -20,8 +15,11 @@ exports.postLogin = (req, res, next) => {
             //console.log(user);
             return req.session.user = user;
         }).then(result => {
-            // console.log(req.session)
-            res.redirect('/');
+            req.session.save((err) => {
+                console.log(err);
+                res.redirect('/');
+            }); //ensure the session is saved before redirection so that the view picks the changes
+
         })
         .catch(err => console.log(err));
 }
