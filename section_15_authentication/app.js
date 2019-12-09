@@ -50,7 +50,12 @@ app.use((req, res, next) => {
         })
         .catch(err => console.log(err));
 });
-
+//adding it just before routes
+app.use((req, res, next) => {
+    res.locals.isAuthenticated = req.session.isLoggedIn;
+    res.locals.csrfToken = req.csrfToken();
+    next();
+});
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
@@ -58,7 +63,7 @@ app.use(authRoutes);
 app.use(errorController.get404);
 
 mongoose
-    .connect(MONGODB_URI)
+    .connect(MONGODB_URI, { useUnifiedTopology: true, useNewUrlParser: true })
     .then(result => {
         app.listen(3000);
     })
