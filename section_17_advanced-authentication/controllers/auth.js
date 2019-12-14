@@ -143,6 +143,7 @@ exports.postReset = (req, res, next) => {
                     req.flash('error', 'No account with that email address found!');
                     res.redirect('/reset');
                 }
+
                 user.resetToken = token;
                 user.resetTokenExpiration = Date.now() + 3600000;
                 return user.save();
@@ -170,7 +171,7 @@ exports.getNewPassword = (req, res, next) => {
     const token = req.params.token;
     User.findOne({ resetToken: token, resetTokenExpiration: {$gt: Date.now()} })
         .then(user => {
-            console.log(user);
+            // console.log(user);
             let message = req.flash('error');
             if (message.length > 0) {
                 message = message[0];
@@ -181,10 +182,51 @@ exports.getNewPassword = (req, res, next) => {
                 path: '/new-password',
                 pageTitle: 'New Password',
                 errorMessage: message,
-                userId: user._id
+                userId: user._id,
+                passwordToken: token
             });
         })
         .catch(err => {
             console.log(err);
         });
+}
+
+exports.postNewPassword = (req, res, next)=>{
+    const newPassword = req.body.password;
+    const userId = req.body.userId;
+    const passwordToken = req.body.passwordToken;
+    let resetUser, userl;
+
+    User.findOne({
+        resetToken: passwordToken,
+        resetTokenExpiration: {$gt: Date.now()},
+        _id: userId
+    })
+    .then(user=>{
+        resetUser=user;
+        userl=user;
+        return bcrypt.hash(newPassword, 12);
+    })
+    .then(password=>{
+        resetUser.password=password;
+        resetUser.resetToken=undefined;
+        resetUser.resetTokenExpiration=undefined;
+        return resetUser.save();
+    })
+    .then(result=>{
+        res.redirect('/login');
+        transporter.sendMail({
+            to: userl.email,
+            from: 'shop@andere.nodejscourse.info',
+            subject: 'Password Reset',
+            html: `
+                <h1>Your password was reset successfully</h1>
+                <hr>
+                <p>If you did not perform this action please contact our customer care</p>
+            `
+        });
+    })
+    .catch(err=>{
+        console.log(err);
+    })
 }
