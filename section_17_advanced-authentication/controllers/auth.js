@@ -155,9 +155,11 @@ exports.postReset = (req, res, next) => {
                     subject: 'Password Reset',
                     html: `
                         <p>You requested a password reset</p>
-                        <p>Click this <a href="http://localhost:3000/reset/${token}link</a> to set a new password</p>
+                        <p>Click this <a href="http://localhost:3000/reset/${token}">link</a> to set a new password</p>
+                        <hr/>
+                        <b>If you did not request for the reset please ignore this email</b>
                     `
-                })
+                });
             })
             .catch(err => {
                 console.log(err);
