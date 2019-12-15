@@ -1,7 +1,9 @@
 const express = require('express');
+const bcrypt = require('bcryptjs');
 const { check, body } = require('express-validator');
 
 const authController = require('../controllers/auth');
+const User = require('../models/user');
 
 const router = express.Router();
 
@@ -9,7 +11,33 @@ router.get('/login', authController.getLogin);
 
 router.get('/signup', authController.getSignup);
 
-router.post('/login', authController.postLogin);
+router.post('/login', [
+            body('email')
+            .isEmail()
+            .withMessage('Please enter a valid email address.')
+            .custom((value,{ req })=>{
+                return User.findOne({email: value})
+                    .then(user=>{
+                        if(!user){
+                            return Promise.reject('A user with that email does not exist, please sign up or enter the correct email address');
+                        }
+                    })
+            }),
+            body('password')
+            .custom((value, { req, res })=>{
+                bcrypt.hash(req.body.password, 12)
+                      .then(bpswd=>{
+                          return User.findOne({password: bpswd})
+                            .then(user=>{
+                                if(!user){
+                                    return Promise.reject('Invalid email or password, please check!');
+                                }
+                            })
+                      });
+                
+            })
+        ], 
+        authController.postLogin);
 
 router.post('/signup', 
         [
@@ -17,10 +45,23 @@ router.post('/signup',
             .isEmail()
             .withMessage('Please enter a valid email address.')
             .custom((value, { req })=>{
-                if(value ==='test@test.com'){
+                /* if(value ==='test@test.com'){
                     throw new Error('This email address is forbidden!');
                 }
-                return true;
+                return true; */
+
+                // Express validator checks if this custom validator throws an error, 
+                // returns a boolean true or false, or if it return a promise. 
+                // If a promise, express-validator will wait for it to complete validation, 
+                // once it is done, if it returns nothing, then it is assumed to be successful
+                // otherwise if the promise returns a rejection then it will be treated as false 
+                // and rejection handled by storing it as an error message.
+                return User.findOne({email: value})
+                    .then(user=>{
+                        if(user){
+                            return Promise.reject('Email exists, please pick a new one or login.');
+                        }
+                    });
             }),
             // check('password') or alternatively
             //check the error message can also be included as below
