@@ -13,29 +13,13 @@ router.get('/signup', authController.getSignup);
 
 router.post('/login', [
             body('email')
-            .isEmail()
-            .withMessage('Please enter a valid email address.')
-            .custom((value,{ req })=>{
-                return User.findOne({email: value})
-                    .then(user=>{
-                        if(!user){
-                            return Promise.reject('A user with that email does not exist, please sign up or enter the correct email address');
-                        }
-                    })
-            }),
+                .isEmail()
+                .withMessage('Wrong credentials, enter a valid email address or password.'),
+
             body('password')
-            .custom((value, { req, res })=>{
-                bcrypt.hash(req.body.password, 12)
-                      .then(bpswd=>{
-                          return User.findOne({password: bpswd})
-                            .then(user=>{
-                                if(!user){
-                                    return Promise.reject('Invalid email or password, please check!');
-                                }
-                            })
-                      });
-                
-            })
+                .isAlphanumeric()
+                .isLength({ min: 5 })
+                .withMessage('Wrong credentials, enter a valid email address or password.')
         ], 
         authController.postLogin);
 
