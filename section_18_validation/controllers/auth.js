@@ -23,7 +23,8 @@ exports.getLogin = (req, res, next) => {
         path: '/login',
         pageTitle: 'Login',
         errorMessage: message,
-        oldInput: {email: "", password: ""}
+        oldInput: {email: "", password: ""},
+        validationErrors: []
     });
 };
 
@@ -38,7 +39,8 @@ exports.getSignup = (req, res, next) => {
         path: '/signup',
         pageTitle: 'Signup',
         errorMessage: message,
-        oldInput: {email: "", password: "", confirmPassword: ""}
+        oldInput: {email: "", password: "", confirmPassword: ""},
+        validationErrors: []
 
     });
 };
@@ -55,14 +57,21 @@ exports.postLogin = (req, res, next) => {
             path: '/login',
             pageTitle: 'Login',
             errorMessage: errors.array()[0].msg,
-            oldInput: {email: email, password: password}
+            oldInput: {email: email, password: password},
+            validationErrors: errors.array()
         });
     }
     User.findOne({ email: email })
         .then(user => {
             if (!user) {
-                req.flash('error', 'Invalid email or password.');
-                return res.redirect("/login");
+                // req.flash('error', 'Invalid email or password.');
+                return res.status(422).render('auth/login', {
+                    path: '/login',
+                    pageTitle: 'Login',
+                    errorMessage: 'Invalid email or password.',
+                    oldInput: {email: email, password: password},
+                    validationErrors: errors.array()
+                });
             }
             bcrypt.compare(password, user.password)
                 .then(doMatch => {
@@ -71,18 +80,25 @@ exports.postLogin = (req, res, next) => {
                         req.session.user = user;
                         return req.session.save(err => {
                             console.log(err);
-                            // res.redirect('/');
+                            res.redirect('/');
                         });
                     } else {
-                        req.flash('error', 'Invalid email or password.');
-                        res.redirect('/login');
+                        // req.flash('error', 'Invalid email or password.');
+                        return res.status(422).render('auth/login', {
+                            path: '/login',
+                            pageTitle: 'Login',
+                            errorMessage: 'Invalid email or password.',
+                            oldInput: {email: email, password: password},
+                            validationErrors: errors.array()
+                        });
                     }
                 })
                 .catch(err => {
                     console.log(err);
-                    res.redirect('/login');
                 });
-        }).catch(err=>console.log(err))
+        }).catch(err=>{
+            console.log(err);
+        })
 };
 
 exports.postSignup = (req, res, next) => {
@@ -98,7 +114,8 @@ exports.postSignup = (req, res, next) => {
                 path: '/signup',
                 pageTitle: 'Signup',
                 errorMessage: errors.array()[0].msg,
-                oldInput: {email: email, password: password, confirmPassword: confirmPassword}
+                oldInput: {email: email, password: password, confirmPassword: confirmPassword},
+                validationErrors: errors.array()
             });
     }
 
