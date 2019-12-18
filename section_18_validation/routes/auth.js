@@ -14,11 +14,13 @@ router.get('/signup', authController.getSignup);
 router.post('/login', [
             body('email')
                 .isEmail()
-                .withMessage('Wrong credentials, enter a valid email address or password.'),
+                .withMessage('Wrong credentials, enter a valid email address or password.')
+                .normalizeEmail(),
 
             body('password')
                 .isAlphanumeric()
                 .isLength({ min: 5 })
+                .trim()
                 .withMessage('Wrong credentials, enter a valid email address or password.')
         ], 
         authController.postLogin);
@@ -27,6 +29,7 @@ router.post('/signup',
         [
             check('email')
             .isEmail()
+            .normalizeEmail()
             .withMessage('Please enter a valid email address.')
             .custom((value, { req })=>{
                 /* if(value ==='test@test.com'){
@@ -51,13 +54,16 @@ router.post('/signup',
             //check the error message can also be included as below
             body('password', 'Please enter a password with only text and numbers and at least 5 characters.')
                 .isLength({min: 5})
-                .isAlphanumeric(),
-            body('confirmPassword').custom((value, {req})=>{
-                if(value !== req.body.password){
-                    throw new Error('Passwords have to match!')
-                }
-                return true;
-            })
+                .isAlphanumeric()
+                .trim(),
+            body('confirmPassword')
+                .trim()
+                .custom((value, {req})=>{
+                    if(value !== req.body.password){
+                        throw new Error('Passwords have to match!');
+                    }
+                    return true;
+                })
         ], 
         authController.postSignup
 );
