@@ -48,10 +48,16 @@ app.use((req, res, next) => {
     }
     User.findById(req.session.user._id)
         .then(user => {
+            if(!user){
+                next();
+            }
             req.user = user;
             next();
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+            // console.log(err);
+            throw new Error(err);
+        });
 });
 //adding it just before routes
 app.use((req, res, next) => {
