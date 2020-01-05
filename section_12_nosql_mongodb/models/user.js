@@ -56,7 +56,6 @@ class User {
             return i.productId;
         });
 
-
         return db.collection('products')
             .find({ _id: { $in: productIds } })
             .toArray()
