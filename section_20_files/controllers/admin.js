@@ -20,7 +20,7 @@ exports.getAddProduct = (req, res, next) => {
 
 exports.postAddProduct = (req, res, next) => {
     const title = req.body.title;
-    const imageUrl = req.body.imageUrl;
+    const image = req.body.image;
     const price = req.body.price;
     const description = req.body.description;
 
@@ -31,7 +31,7 @@ exports.postAddProduct = (req, res, next) => {
             pageTitle: 'Add Product',
             path: '/admin/add-product',
             editing: false,
-            oldInput: { title: title, imageUrl: imageUrl, price: price, description: description },
+            oldInput: { title: title, image: image, price: price, description: description },
             displayError: errors.array()[0].msg,
             validationErrors: errors.array()
         });
