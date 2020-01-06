@@ -21,14 +21,22 @@ const store = new MongoDBStore({
     collection: 'sessions'
 });
 const csrfProtection = csrf();
+//multer config
 const fileStorage = multer.diskStorage({
-    destination: (req, file, cb)=>{
+    destination: (req, file, cb) => {
         cb(null, 'images');
     },
-    filename: (req, file, cb)=>{
-        cb(null, file.filename+'-'+file.originalname);
-    } 
+    filename: (req, file, cb) => {
+        cb(null, new Date().toISOString() + '-' + file.originalname);
+    }
 });
+const appFileFilter = (req, file, cb) => {
+    if (file.mimetype === 'image/png' || file.mimetype === 'image/jpg' || file.mimetype === 'image/jpeg' || file.mimetype === 'image/svg') {
+        cb(null, true);
+    } else {
+        cb(null, false);
+    }
+}
 
 app.set('view engine', 'ejs');
 app.set('views', 'views');
@@ -38,7 +46,8 @@ const shopRoutes = require('./routes/shop');
 const authRoutes = require('./routes/auth');
 
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(multer({storage: fileStorage}).single('image')); //'image' is the name of the multipart form field
+app.use(multer({ storage: fileStorage, fileFilter: appFileFilter }).single('image')); //'image' is the name of the multipart form field
+
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(
     session({
@@ -58,7 +67,7 @@ app.use((req, res, next) => {
     }
     User.findById(req.session.user._id)
         .then(user => {
-            if(!user){
+            if (!user) {
                 next();
             }
             req.user = user;
@@ -81,7 +90,7 @@ app.use(authRoutes);
 app.get('/500', errorController.get500);
 app.use(errorController.get404);
 
-app.use((error, req, res, next)=>{
+app.use((error, req, res, next) => {
     res.redirect('/500');
 });
 

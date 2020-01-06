@@ -20,9 +20,6 @@ router.post('/add-product', isAuth, [
         .trim()
         .isLength({min: 5})
         .isString(),
-    /* body('imageUrl', 'Invalid image path, provide a valid url!')
-        .trim()
-        .isURL(), */
     body('price', 'Price can only be a number!')
         .isFloat()
         .trim(),
@@ -39,8 +36,6 @@ router.post('/edit-product', isAuth, [
         .trim()
         .isLength({min: 5})
         .isString(),
-    body('imageUrl', 'Invalid image path, provide a valid url!')
-        .isURL(),
     body('price', 'Price can only be a number!')
         .isFloat()
         .trim(),
