@@ -155,7 +155,9 @@ exports.getInvoice = (req, res, next) => {
         if (err) {
             return next(err);
         }
-
+        res.setHeader('Content-Type', 'application/pdf');
+        // res.setHeader('Content-Disposition','inline; filename="'+invoiceName+'"'); // automatically open pdf in browser
+        res.setHeader('Content-Disposition','attachment; filename="'+invoiceName+'"'); // automatically download the file in browser
         res.send(data);
     })
 
