@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const PDFDocument = require('pdfkit');
+
 const Product = require('../models/product');
 const Order = require('../models/order');
 
@@ -174,12 +176,28 @@ exports.getInvoice = (req, res, next) => {
                 // res.setHeader('Content-Disposition', 'attachment; filename="' + invoiceName + '"'); // automatically download the file in browser
                 res.send(data);
             }); */
-            //STREAMING FILE READS - SUITABLE FOR MANY AND BIG FILES
+
+            /*//STREAMING FILE READS - SUITABLE FOR MANY AND BIG FILES
             const file = fs.createReadStream(invoicePath);
             res.setHeader('Content-Type', 'application/pdf');
             res.setHeader('Content-Disposition', 'inline; filename="' + invoiceName + '"'); // automatically open pdf in browser
             // res.setHeader('Content-Disposition', 'attachment; filename="' + invoiceName + '"'); // automatically download the file in browser
             file.pipe(res);
+            */
+
+            //GENERATE PDF - pdfkit
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', 'inline; filename="' + invoiceName + '"'); // automatically open pdf in browser
+            // res.setHeader('Content-Disposition', 'attachment; filename="' + invoiceName + '"'); // automatically download the file in browser
+
+            const pdfDoc = new PDFDocument();
+
+            pdfDoc.pipe(fs.createWriteStream(invoicePath));
+            pdfDoc.pipe(res);
+
+            pdfDoc.text("Hello world!");
+
+            pdfDoc.end();
         })
         .catch(err => {
             next(err);
