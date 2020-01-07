@@ -20,18 +20,30 @@ exports.getAddProduct = (req, res, next) => {
 
 exports.postAddProduct = (req, res, next) => {
     const title = req.body.title;
-    const imageUrl = req.body.imageUrl;
+    const image = req.file;
     const price = req.body.price;
     const description = req.body.description;
 
     const errors = validationResult(req);
+
+    if (!image) {
+        return res.status(422).render('admin/edit-product', {
+            pageTitle: 'Add Product',
+            path: '/admin/add-product',
+            editing: false,
+            oldInput: { title: title, price: price, description: description },
+            displayError: 'Invalid image type selected, please select an image of type: .jpg, .jpeg, .svg, or .png ',
+            validationErrors: []
+        });
+    }
+    const imageUrl = image.path;
 
     if (!errors.isEmpty()) {
         return res.status(422).render('admin/edit-product', {
             pageTitle: 'Add Product',
             path: '/admin/add-product',
             editing: false,
-            oldInput: { title: title, imageUrl: imageUrl, price: price, description: description },
+            oldInput: { title: title, image: image, price: price, description: description },
             displayError: errors.array()[0].msg,
             validationErrors: errors.array()
         });
@@ -90,24 +102,22 @@ exports.postEditProduct = (req, res, next) => {
     const prodId = req.body.productId;
     const updatedTitle = req.body.title;
     const updatedPrice = req.body.price;
-    const updatedImageUrl = req.body.imageUrl;
+    const updatedImage = req.file;
     const updatedDesc = req.body.description;
 
     const errors = validationResult(req);
-    console.log("Errors: ");
-    console.log(errors.array());
 
     if (!errors.isEmpty()) {
         return res.status(422).render('admin/edit-product', {
             pageTitle: 'Edit Product',
             path: '/admin/edit-product',
             editing: true,
-            product: { _id: prodId, title: updatedTitle, price: updatedPrice, imageUrl: updatedImageUrl, description: updatedDesc },
+            product: { _id: prodId, title: updatedTitle, price: updatedPrice, description: updatedDesc },
             displayError: errors.array()[0].msg,
             validationErrors: errors.array()
         });
     }
-
+    
     Product.findById(prodId)
         .then(product => {
             if (product.userId.toString() !== req.user._id.toString()) {
@@ -117,12 +127,18 @@ exports.postEditProduct = (req, res, next) => {
             product.title = updatedTitle;
             product.price = updatedPrice;
             product.description = updatedDesc;
-            product.imageUrl = updatedImageUrl;
+            if(updatedImage){
+                console.log("New image path added!!!")
+                product.imageUrl = updatedImage.path;
+            }
             return product
                 .save()
                 .then(result => {
                     console.log('UPDATED PRODUCT!');
                     res.redirect('/admin/products');
+                }).catch(err=>{
+                    console.log("Error on UPDATE!!!");
+                    console.log(err);
                 });
         })
         .catch(err => {
