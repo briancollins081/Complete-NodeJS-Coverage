@@ -164,6 +164,7 @@ exports.getInvoice = (req, res, next) => {
             const invoiceName = 'invoice-' + orderId + '.pdf';
             const invoicePath = path.join('data', 'invoices', invoiceName);
 
+            /* // SUITABLE FOR SMALLER FILES 
             fs.readFile(invoicePath, (err, data) => {
                 if (err) {
                     return next(err);
@@ -172,7 +173,13 @@ exports.getInvoice = (req, res, next) => {
                 res.setHeader('Content-Disposition','inline; filename="'+invoiceName+'"'); // automatically open pdf in browser
                 // res.setHeader('Content-Disposition', 'attachment; filename="' + invoiceName + '"'); // automatically download the file in browser
                 res.send(data);
-            });
+            }); */
+            //STREAMING FILE READS - SUITABLE FOR MANY AND BIG FILES
+            const file = fs.createReadStream(invoicePath);
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', 'inline; filename="' + invoiceName + '"'); // automatically open pdf in browser
+            // res.setHeader('Content-Disposition', 'attachment; filename="' + invoiceName + '"'); // automatically download the file in browser
+            file.pipe(res);
         })
         .catch(err => {
             next(err);
