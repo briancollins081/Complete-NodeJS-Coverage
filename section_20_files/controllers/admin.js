@@ -2,6 +2,7 @@ const { validationResult } = require('express-validator');
 const mongoose = require('mongoose');
 
 const Product = require('../models/product');
+const fileHelper = require('../util/file');
 
 exports.getAddProduct = (req, res, next) => {
     if (!req.session.isLoggedIn) {
@@ -117,18 +118,17 @@ exports.postEditProduct = (req, res, next) => {
             validationErrors: errors.array()
         });
     }
-    
+
     Product.findById(prodId)
         .then(product => {
             if (product.userId.toString() !== req.user._id.toString()) {
-                console.log("Product not created by this user");
                 return res.redirect('/');
             }
             product.title = updatedTitle;
             product.price = updatedPrice;
             product.description = updatedDesc;
-            if(updatedImage){
-                console.log("New image path added!!!")
+            if (updatedImage) {
+                fileHelper.deleteFile(product.imageUrl);
                 product.imageUrl = updatedImage.path;
             }
             return product
@@ -136,7 +136,7 @@ exports.postEditProduct = (req, res, next) => {
                 .then(result => {
                     console.log('UPDATED PRODUCT!');
                     res.redirect('/admin/products');
-                }).catch(err=>{
+                }).catch(err => {
                     console.log("Error on UPDATE!!!");
                     console.log(err);
                 });
@@ -169,9 +169,16 @@ exports.getProducts = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
     const prodId = req.body.productId;
-    Product.deleteOne({ _id: prodId, userId: req.user._id })
+    Product.findById(prodId)
+        .then(product => {
+            if (!product) {
+                return next(new Error('Product not found!'));
+            }
+            fileHelper.deleteFile(product.imageUrl);
+            return Product.deleteOne({ _id: prodId, userId: req.user._id });
+        })
         .then(() => {
-            console.log('DESTROYED PRODUCT');
+            console.log('DELETED PRODUCT');
             res.redirect('/admin/products');
         })
         .catch(err => {
