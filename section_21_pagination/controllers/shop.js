@@ -44,7 +44,13 @@ exports.getProduct = (req, res, next) => {
 };
 
 exports.getIndex = (req, res, next) => {
-    const page = req.query.page;
+    let page;
+    if(req.query.page){
+        page = +req.query.page;
+    }else{
+        page = 1;
+    }
+
     let totalItems = 0;
     Product.find()
         .countDocuments()
@@ -59,11 +65,12 @@ exports.getIndex = (req, res, next) => {
                 prods: products,
                 pageTitle: 'Shop',
                 path: '/',
-                totalProducts: totalItems,
+                currentPage: page,
                 hasNext: page * ITEMS_PER_PAGE < totalItems,
                 hasPrevious: page > 1,
+                previousPage: page - 1,
                 nextPage: page + 1,
-                lastPage: Math.ceil(totalItems/ITEMS_PER_PAGE)
+                lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
             });
         })
         .catch(err => {

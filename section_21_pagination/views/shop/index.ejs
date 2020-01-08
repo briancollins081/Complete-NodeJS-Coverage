@@ -10,7 +10,7 @@
         <div class="shelf">
             <div class="grid row">
                 <% for (let product of prods) { %>
-                <div class="col my-3">
+                <div class="col col-sm-4 my-3">
                     <div class="card">
                         <img class="card-img-top" src="/<%= product.imageUrl %>" alt="<%= product.title %>"
                             height="250px">
@@ -57,15 +57,29 @@
                 <div class="col-md-10">
                     <nav aria-label="Products pagination navs">
                         <ul class="pagination">
+                            <% if(currentPage !== 1 && previousPage !== 1){%>
                             <li class="page-item" aria-current="page">
                                 <a class="page-link" href="/?page=1">1</a>
                             </li>
+                            <%}%>
+                            <% if(hasPrevious){%>
                             <li class="page-item">
-                                <a class="page-link" href="/?page=2">2</a>
+                                <a class="page-link" href="/?page=<%= previousPage %>"><%= previousPage %></a>
                             </li>
+                            <% } %>
+                            <li class="page-item active">
+                                <a class="page-link" href="/?page=<%= currentPage %>"><%= currentPage %></a>
+                            </li>
+                            <% if(hasNext){%>
                             <li class="page-item">
-                                <a class="page-link" href="/?page=3">3</a>
+                                <a class="page-link" href="/?page=<%= nextPage %>"><%= nextPage %></a>
                             </li>
+                            <%}%>
+                            <% if(lastPage != currentPage && lastPage != nextPage){%>
+                            <li class="page-item">
+                                <a class="page-link" href="/?page=<%= lastPage %>"><%= lastPage %></a>
+                            </li>
+                            <%}%>
                         </ul>
                     </nav>
                 </div>
