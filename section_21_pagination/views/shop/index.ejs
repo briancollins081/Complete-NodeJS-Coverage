@@ -5,12 +5,12 @@
 <body>
     <%- include('../includes/navigation.ejs') %>
 
-    <main class="container-fluid">
+    <main class="container">
         <% if (prods.length > 0) { %>
         <div class="shelf">
             <div class="grid row">
                 <% for (let product of prods) { %>
-                <div class="col-sm-3 my-3">
+                <div class="col my-3">
                     <div class="card">
                         <img class="card-img-top" src="/<%= product.imageUrl %>" alt="<%= product.title %>"
                             height="250px">
