@@ -9,13 +9,32 @@ const Order = require('../models/order');
 const ITEMS_PER_PAGE = 3;
 
 exports.getProducts = (req, res, next) => {
+    let page;
+    if (req.query.page) {
+        page = +req.query.page;
+    } else {
+        page = 1;
+    }
+    let totalItems = 0;
     Product.find()
-        .then(products => {
-            // console.log(products);
+        .countDocuments()
+        .then(numberProducts => {
+            totalItems = numberProducts;
+            return Product
+                .find()
+                .skip((page - 1) * ITEMS_PER_PAGE)
+                .limit(ITEMS_PER_PAGE)
+        }).then(products => {
             res.render('shop/product-list', {
                 prods: products,
                 pageTitle: 'All Products',
-                path: '/products'
+                path: '/products',
+                currentPage: page,
+                hasNext: page * ITEMS_PER_PAGE < totalItems,
+                hasPrevious: page > 1,
+                previousPage: page - 1,
+                nextPage: page + 1,
+                lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
             });
         })
         .catch(err => {
@@ -45,9 +64,9 @@ exports.getProduct = (req, res, next) => {
 
 exports.getIndex = (req, res, next) => {
     let page;
-    if(req.query.page){
+    if (req.query.page) {
         page = +req.query.page;
-    }else{
+    } else {
         page = 1;
     }
 
