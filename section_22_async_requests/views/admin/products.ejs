@@ -1,0 +1,59 @@
+<%- include('../includes/head.ejs') %>
+<link rel="stylesheet" href="/css/product.css">
+</head>
+
+<body>
+    <%- include('../includes/navigation.ejs') %>
+
+    <main class="container">
+        <% if (prods.length > 0) { %>
+        <div class="shelf">
+            <div class="grid row">
+                <% for (let product of prods) { %>
+                <div class="col-sm-3 my-3">
+                    <div class="card">
+                        <img class="card-img-top" src="/<%= product.imageUrl %>" alt="<%= product.title %>"
+                            height="250px">
+                        <div class="card-body">
+                            <div class="text-center">
+                                <b class="product__price">$
+                                    <%= product.price %>
+                                </b>
+                            </div>
+                            <div class="card-title text-center">
+                                <b><%= product.title %></b>
+                            </div>
+                            <div class="card-text">
+                                <p class="product__description text-left">
+                                    <%= product.description %>
+                                </p>
+                            </div>
+                            <div class="card-foote">
+                                <div class="card__actions">
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <a href="/admin/edit-product/<%= product._id %>?edit=true"
+                                                class="btn btn-sm btn-outline-primary">Edit</a>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <!-- <form action="/admin/delete-product" method="POST"> -->
+                                                <input type="hidden" value="<%= product._id %>" name="productId">
+                                                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                                <button class="btn btn-sm btn-outline-primary" type="submit" id="deleteBtn" onclick="deleteProduct(this)">Delete</button>
+                                            <!-- </form> -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <% } %>
+            </div>
+        </div>
+        <% } else { %>
+        <h1>No Products Found!</h1>
+        <% } %>
+    </main>
+    <%- include('../includes/end.ejs') %>
+    <script src="/js/admin.js"></script>
