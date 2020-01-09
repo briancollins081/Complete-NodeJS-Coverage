@@ -36,7 +36,7 @@
                                                 class="btn btn-sm btn-outline-primary">Edit</a>
                                         </div>
                                         <div class="col-sm-6">
-                                            <!-- <form action="/admin/delete-product" method="POST"> -->
+                                            <!-- <form action="/admin/delete-product" method="POST" id="producteditform"> -->
                                                 <input type="hidden" value="<%= product._id %>" name="productId">
                                                 <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                                 <button class="btn btn-sm btn-outline-primary" type="submit" id="deleteBtn" onclick="deleteProduct(this)">Delete</button>
