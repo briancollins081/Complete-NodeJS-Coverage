@@ -7,19 +7,27 @@
     productEditForm.addEventListener('submit', handleEvent);
 } */
 
-deleteProduct = (btn) => {
+deleteProduct = btn => {
     const productId = btn.parentNode.querySelector('[name=productId]').value;
     const csrf = btn.parentNode.querySelector('[name=_csrf]').value;
-    fetch('/admin/product/'+productId, {
+
+    const productElement = btn.closest("article");
+    // console.log(productElement);
+
+    fetch('/admin/product/' + productId, {
         method: 'DELETE',
-        headers:{
+        headers: {
             'csrf-token': csrf
         }
     })
-    .then(result => {
-        console.log(result);
-    })
-    .catch(error => {
-        console.log(error);
-    });
+        .then(result => {
+            return result.json();
+        })
+        .then(data => {
+            console.log(data);
+            productElement.parentNode.removeChild(productElement);
+        })
+        .catch(error => {
+            console.log(error);
+        });
 }

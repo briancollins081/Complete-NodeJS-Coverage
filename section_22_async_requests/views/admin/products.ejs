@@ -10,7 +10,7 @@
         <div class="shelf">
             <div class="grid row">
                 <% for (let product of prods) { %>
-                <div class="col-sm-3 my-3">
+                <article class="col-sm-3 my-3">
                     <div class="card">
                         <img class="card-img-top" src="/<%= product.imageUrl %>" alt="<%= product.title %>"
                             height="250px">
@@ -47,7 +47,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </article>
                 <% } %>
             </div>
         </div>
