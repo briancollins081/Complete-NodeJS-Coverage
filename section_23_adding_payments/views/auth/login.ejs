@@ -13,26 +13,26 @@
                     </div>
                     <% } %>
                         <form class="login-form" action="/login" method="POST" novalidate >
-                            <div class="form-control">
+                            <div class="form-group">
                                 <label for="email">E-Mail</label>
                                 <input 
                                     type="email" 
                                     name="email" 
                                     id="email" 
                                     value="<%= oldInput.email %>"
-                                    class="<%= validationErrors.find(e=>e.param==='email')?'invalid':'valid' %>">
+                                    class="form-control <%= validationErrors.find(e=>e.param==='email')?'invalid':'valid' %>">
                             </div>
-                            <div class="form-control">
+                            <div class="form-group">
                                 <label for="password">Password</label>
                                 <input 
                                     type="password" 
                                     name="password" 
                                     id="password" 
                                     value="<%= oldInput.password %>"
-                                    class="<%= validationErrors.find(e=>e.param==='password')?'invalid':'valid' %>">
+                                    class="form-control <%= validationErrors.find(e=>e.param==='password')?'invalid':'valid' %>">
                             </div>
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                            <button class="btn" type="submit">Login</button>
+                            <button class="btn btn-info" type="submit">Login</button>
                         </form>
                         <div class="centered">
                             <a href="/reset">Forgot Password?</a>

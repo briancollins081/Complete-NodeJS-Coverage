@@ -1,0 +1,30 @@
+<%- include('../includes/head.ejs') %>
+</head>
+
+<body>
+    <%- include('../includes/navigation.ejs') %>
+    <main class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <% if (products.length > 0) { %>
+                    <ul class="cart__item-list" style="list-style: none;">
+                        <% products.forEach(p => { %>
+                        <li class="cart__item alert alert-info">
+                            <h5>
+                                <%= p.productId.title %>
+                            </h5>
+                            <h6>Quantity:
+                                <%= p.quantity %>
+                            </h6>
+                        </li>
+                        <% }) %>
+                    </ul>
+                    <hr>
+                    <h3 class="text-right"><span class="badge badge-pill badge-light">Total cost: <%= totalCost %></span></h3>
+                    <% } else { %>
+                    <h4>No Orders Yet!</h4>
+                    <% } %>
+            </div>
+        </div>
+    </main>
+    <%- include('../includes/end.ejs') %>

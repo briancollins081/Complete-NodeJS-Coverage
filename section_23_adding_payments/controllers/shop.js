@@ -256,3 +256,31 @@ exports.getInvoice = (req, res, next) => {
             next(err);
         });
 }
+
+exports.getCheckout = (req, res, next) => {
+    console.log(req.user);
+    req.user
+        .populate('cart.items.productId')
+        .execPopulate()
+        .then(user => {
+            // console.log("User populated is:");
+            // console.log(user.cart.items)
+            const products = user.cart.items;
+            let total = 0;
+            products.forEach(p => {
+                total += p.quantity * p.productId.price;
+            })
+            res.render('shop/checkout', {
+                path: '/checkout',
+                pageTitle: 'Checkout',
+                products: products,
+                totalCost: total
+            });
+        })
+        .catch(err => {
+            console.log(err)
+            const error = new Error(err);
+            error.httpStatus = 500;
+            return next(error);
+        });
+}
