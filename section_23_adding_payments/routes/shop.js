@@ -25,10 +25,10 @@ router.get('/checkout', isAuth, shopController.getCheckout);
 
 router.post('/checkout', isAuth, shopController.postCheckout);
 
-router.get('/checkout/cancel', isAuth, shopController.getCheckoutCancel);
+// router.get('/checkout/cancel', isAuth, shopController.getCheckoutCancel);
 
 // router.post('/create-order', isAuth, shopController.postOrder);
-router.get('/checkout/success', isAuth, shopController.getCheckoutSuccess);
+// router.get('/checkout/success', isAuth, shopController.getCheckoutSuccess);
 
 router.get('/orders', isAuth, shopController.getOrders);
 

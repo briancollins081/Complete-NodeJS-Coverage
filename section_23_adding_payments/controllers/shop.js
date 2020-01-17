@@ -8,9 +8,11 @@ const Order = require('../models/order');
 
 const paypalKeys = require('../keys/paypal');
 const paypalCheckoutSdk = require('@paypal/checkout-server-sdk');
-const paypalHttpClient = new paypalCheckoutSdk.core.PayPalHttpClient(new paypalCheckoutSdk.core.SandboxEnvironment(
-    paypalKeys.bus_client_id, paypalKeys.bus_secret
-));
+const paypalHttpClient = new paypalCheckoutSdk.core.PayPalHttpClient(
+    new paypalCheckoutSdk.core.SandboxEnvironment(
+        paypalKeys.bus_client_id, paypalKeys.bus_secret
+    )
+);
 
 
 const ITEMS_PER_PAGE = 3;
@@ -177,12 +179,44 @@ exports.getCheckout = (req, res, next) => {
 }
 
 exports.postCheckout = async (req, res, next) => {
-    let orderId=req.body.orderId;
-    let payerId=req.body.payerId;
-    let facilitatorAccessToken=req.body.facilitatorAccessToken;
+    let orderId = req.body.orderId;
+    let payerId = req.body.payerId;
+    let facilitatorAccessToken = req.body.facilitatorAccessToken;
+    // console.log(orderId, payerId, facilitatorAccessToken);
+    let request = new paypalCheckoutSdk.orders.OrdersGetRequest(orderId);
+    let response = await paypalHttpClient.execute(request);
     
-    alert("Inside postCheckout!!! \n"+orderId);
+    // console.log("RESPONSE:");
+    // console.log(response);
 
+    req.user
+        .populate('cart.items.productId')
+        .execPopulate()
+        .then(user => {
+            const products = user.cart.items.map(i => {
+                return { quantity: i.quantity, product: { ...i.productId._doc } };
+            });
+            const order = new Order({
+                user: {
+                    email: req.user.email,
+                    userId: req.user
+                },
+                products: products,
+                paypal_order: response
+            });
+            return order.save();
+        })
+        .then(result => {
+            return req.user.clearCart();
+        })
+        .then(() => {
+            res.redirect('/orders');
+        })
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatus = 500;
+            return next(error);
+        });
 }
 /*
     To do
@@ -215,66 +249,6 @@ exports.postPaypalOrder = async (req, res, next) => {
     // 7. Return a successful response to the client
     return res.send(200);
 }
-exports.getCheckoutSuccess = (req, res, next) => {
-    req.user
-        .populate('cart.items.productId')
-        .execPopulate()
-        .then(user => {
-            const products = user.cart.items.map(i => {
-                return { quantity: i.quantity, product: { ...i.productId._doc } };
-            });
-            const order = new Order({
-                user: {
-                    email: req.user.email,
-                    userId: req.user
-                },
-                products: products
-            });
-            return order.save();
-        })
-        .then(result => {
-            return req.user.clearCart();
-        })
-        .then(() => {
-            res.redirect('/orders');
-        })
-        .catch(err => {
-            const error = new Error(err);
-            error.httpStatus = 500;
-            return next(error);
-        });
-};
-
-exports.getCheckoutCancel = (req, res, next) => {
-    req.user
-        .populate('cart.items.productId')
-        .execPopulate()
-        .then(user => {
-            const products = user.cart.items.map(i => {
-                return { quantity: i.quantity, product: { ...i.productId._doc } };
-            });
-            const order = new Order({
-                user: {
-                    email: req.user.email,
-                    userId: req.user
-                },
-                products: products
-            });
-            return order.save();
-        })
-        .then(result => {
-            return req.user.clearCart();
-        })
-        .then(() => {
-            res.redirect('/orders');
-        })
-        .catch(err => {
-            const error = new Error(err);
-            error.httpStatus = 500;
-            return next(error);
-        });
-};
-
 exports.postOrder = (req, res, next) => {
     req.user
         .populate('cart.items.productId')

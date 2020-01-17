@@ -55,7 +55,7 @@
                                             info = data;
                                             url = window.location.origin + '/checkout';
 
-                                            console.log(info);
+                                            // console.log(info);
                                             let o = document.getElementById('orderId');
                                             let p = document.getElementById('payerId');
                                             let f = document.getElementById('fid');
@@ -82,10 +82,10 @@
             </div>
         </div>
     </main>
-    <!-- Button trigger modal -->
+    <!-- Button trigger modal
     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#checkoutModal">
         Launch demo modal
-    </button>
+    </button> -->
 
     <!-- Modal -->
     <div data-backdrop="static" data-keyboard="false" class="modal fade" id="checkoutModal" tabindex="-1" role="dialog" aria-labelledby="checkoutModalLabel"
@@ -105,7 +105,7 @@
                         <input type="hidden" name="orderId" id="orderId">
                         <input type="hidden" name="payerId" id="payerId">
                         <input type="hidden" name="facilitatorAccessToken" id="fid">
-                        <!-- <input type="hidden" name="_csrf"> -->
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                         <input type="submit" class="btn btn-info" value="Next" data-toggle="modal" data-target="#checkoutModal">
                     </form>
                 </div>
