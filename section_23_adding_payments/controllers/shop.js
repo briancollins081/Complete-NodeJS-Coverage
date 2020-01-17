@@ -6,14 +6,44 @@ const PDFDocument = require('pdfkit');
 const Product = require('../models/product');
 const Order = require('../models/order');
 
+const paypalKeys = require('../keys/paypal');
+const paypalCheckoutSdk = require('@paypal/checkout-server-sdk');
+const paypalHttpClient = new paypalCheckoutSdk.core.PayPalHttpClient(
+    new paypalCheckoutSdk.core.SandboxEnvironment(
+        paypalKeys.bus_client_id, paypalKeys.bus_secret
+    )
+);
+
+
+const ITEMS_PER_PAGE = 3;
+
 exports.getProducts = (req, res, next) => {
+    let page;
+    if (req.query.page) {
+        page = +req.query.page;
+    } else {
+        page = 1;
+    }
+    let totalItems = 0;
     Product.find()
-        .then(products => {
-            // console.log(products);
+        .countDocuments()
+        .then(numberProducts => {
+            totalItems = numberProducts;
+            return Product
+                .find()
+                .skip((page - 1) * ITEMS_PER_PAGE)
+                .limit(ITEMS_PER_PAGE)
+        }).then(products => {
             res.render('shop/product-list', {
                 prods: products,
                 pageTitle: 'All Products',
-                path: '/products'
+                path: '/products',
+                currentPage: page,
+                hasNext: page * ITEMS_PER_PAGE < totalItems,
+                hasPrevious: page > 1,
+                previousPage: page - 1,
+                nextPage: page + 1,
+                lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
             });
         })
         .catch(err => {
@@ -42,12 +72,33 @@ exports.getProduct = (req, res, next) => {
 };
 
 exports.getIndex = (req, res, next) => {
+    let page;
+    if (req.query.page) {
+        page = +req.query.page;
+    } else {
+        page = 1;
+    }
+
+    let totalItems = 0;
     Product.find()
+        .countDocuments()
+        .then(numProducts => {
+            totalItems = numProducts;
+            return Product.find()
+                .skip((page - 1) * ITEMS_PER_PAGE)
+                .limit(ITEMS_PER_PAGE)
+        })
         .then(products => {
             res.render('shop/index', {
                 prods: products,
                 pageTitle: 'Shop',
-                path: '/'
+                path: '/',
+                currentPage: page,
+                hasNext: page * ITEMS_PER_PAGE < totalItems,
+                hasPrevious: page > 1,
+                previousPage: page - 1,
+                nextPage: page + 1,
+                lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
             });
         })
         .catch(err => {
@@ -101,7 +152,103 @@ exports.postCartDeleteProduct = (req, res, next) => {
             return next(error);
         });
 };
+exports.getCheckout = (req, res, next) => {
+    req.user
+        .populate('cart.items.productId')
+        .execPopulate()
+        .then(user => {
+            const products = user.cart.items;
+            let total = 0;
+            products.forEach(p => {
+                total += p.quantity * p.productId.price;
+            })
 
+            res.render('shop/checkout', {
+                path: '/checkout',
+                pageTitle: 'Checkout',
+                products: products,
+                totalSum: total,
+                data: JSON.stringify({ products: products, totalSum: total })
+            });
+        })
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatus = 500;
+            return next(error);
+        });
+}
+
+exports.postCheckout = async (req, res, next) => {
+    let orderId = req.body.orderId;
+    let payerId = req.body.payerId;
+    let facilitatorAccessToken = req.body.facilitatorAccessToken;
+    // console.log(orderId, payerId, facilitatorAccessToken);
+    let request = new paypalCheckoutSdk.orders.OrdersGetRequest(orderId);
+    let response = await paypalHttpClient.execute(request);
+    
+    // console.log("RESPONSE:");
+    // console.log(response);
+
+    req.user
+        .populate('cart.items.productId')
+        .execPopulate()
+        .then(user => {
+            const products = user.cart.items.map(i => {
+                return { quantity: i.quantity, product: { ...i.productId._doc } };
+            });
+            const order = new Order({
+                user: {
+                    email: req.user.email,
+                    userId: req.user
+                },
+                products: products,
+                paypal_order: response
+            });
+            return order.save();
+        })
+        .then(result => {
+            return req.user.clearCart();
+        })
+        .then(() => {
+            res.redirect('/orders');
+        })
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatus = 500;
+            return next(error);
+        });
+}
+/*
+    To do
+    */
+exports.postPaypalOrder = async (req, res, next) => {
+    // 2a. Get the order ID from the request body
+    const orderData = req.body.orderData;
+
+    // 3. Call PayPal to get the transaction details
+    let request = new paypalCheckoutSdk.orders.OrdersGetRequest(orderID);
+
+    let order;
+    try {
+        order = await paypalHttpClient.client().execute(request);
+    } catch (err) {
+
+        // 4. Handle any errors from the call
+        console.error(err);
+        return res.send(500);
+    }
+
+    // 5. Validate the transaction details are as expected
+    if (order.result.purchase_units[0].amount.value !== '220.00') {
+        return res.send(400);
+    }
+
+    // 6. Save the transaction in your database
+    // await database.saveTransaction(orderID);
+
+    // 7. Return a successful response to the client
+    return res.send(200);
+}
 exports.postOrder = (req, res, next) => {
     req.user
         .populate('cart.items.productId')
@@ -165,25 +312,6 @@ exports.getInvoice = (req, res, next) => {
 
             const invoiceName = 'invoice-' + orderId + '.pdf';
             const invoicePath = path.join('data', 'invoices', invoiceName);
-
-            /* // SUITABLE FOR SMALLER FILES 
-            fs.readFile(invoicePath, (err, data) => {
-                if (err) {
-                    return next(err);
-                }
-                res.setHeader('Content-Type', 'application/pdf');
-                res.setHeader('Content-Disposition','inline; filename="'+invoiceName+'"'); // automatically open pdf in browser
-                // res.setHeader('Content-Disposition', 'attachment; filename="' + invoiceName + '"'); // automatically download the file in browser
-                res.send(data);
-            }); */
-
-            /*//STREAMING FILE READS - SUITABLE FOR MANY AND BIG FILES
-            const file = fs.createReadStream(invoicePath);
-            res.setHeader('Content-Type', 'application/pdf');
-            res.setHeader('Content-Disposition', 'inline; filename="' + invoiceName + '"'); // automatically open pdf in browser
-            // res.setHeader('Content-Disposition', 'attachment; filename="' + invoiceName + '"'); // automatically download the file in browser
-            file.pipe(res);
-            */
 
             //GENERATE PDF - pdfkit
 
