@@ -10,16 +10,6 @@ exports.getPosts = (req, res, next) => {
                     name: 'Andere Brian'
                 },
                 createdAt: new Date().toUTCString()
-            },
-            {
-                _id: '2',
-                title: 'Second Post',
-                content: 'This is the second post!',
-                imageUrl: 'images/genius.jpg',
-                creator: {
-                    name: 'Andere Brian II'
-                },
-                createdAt: new Date().toUTCString()
             }
         ]
     });
@@ -31,6 +21,12 @@ exports.createPost = (req, res, next) => {
     //Create posts
     res.status(201).json({
         message: 'Post created successfully',
-        post: { id: new Date().toISOString(), title: title, content: content }
+        post: { 
+            _id: new Date().toISOString(), 
+            title: title, 
+            content: content,
+            creator: {name: 'Andere Brian'},
+            createdAt: new Date()
+        }
     });
 }
