@@ -8,7 +8,7 @@ const feedsController = require('../controllers/feed');
 router.get('/posts', feedsController.getPosts);
 
 router.post('/post',[
-    body('title').trim().isLength({min: 5}),
+    body('title').trim().isLength({min: 7}),
     body('content').trim().isLength({min: 5}),
 ], feedsController.createPost);
 
