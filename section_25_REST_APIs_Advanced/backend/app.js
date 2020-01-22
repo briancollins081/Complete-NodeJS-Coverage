@@ -3,14 +3,37 @@ const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const multer = require('multer');
 
 const app = express();
+const fileStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'images');
+    },
+    filename: (req, file, cb) => {
+        cb(null, new Date().toISOString() + '-' + file.originalname);
+    }
+});
+const fileFilter = (req, file, cb) => {
+    if (file.mimetype === 'image/png' ||
+        file.mimetype === 'image/jpg' ||
+        file.mimetype === 'image/jpeg' ||
+        file.mimetype === 'image/svg'){
+            cb(null, true);
+        }else{
+            cb(null, false);
+        }
+}
 
 const feedRoutes = require('./router/feed');
 const ENV_KEYS = require('./keys/keys');
 
 // app.use(bodyParser.urlencoded()); // x-www-form-urlencoded <<form post req>>
 app.use(bodyParser.json()); //for json format data
+
+//add multer after body parser
+app.use(multer({storage: fileStorage, fileFilter: fileFilter}).single('image'));
+
 app.use('/images', express.static(path.join(__dirname, 'images')));
 //set headers for all our server requests
 app.use((req, res, next) => {
@@ -26,7 +49,7 @@ app.use((error, res, req, next) => {
     console.log(error);
     const status = error.statusCode;
     const message = error.message;
-    res.status(status).json({message: message});
+    res.status(status).json({ message: message });
 });
 
 mongoose.connect(ENV_KEYS.MONGO_DB_URL, { useUnifiedTopology: true, useNewUrlParser: true })
