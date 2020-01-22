@@ -5,11 +5,22 @@ const { validationResult } = require('express-validator');
 const Post = require('../models/posts');
 
 exports.getPosts = (req, res, next) => {
+    const currentPage = req.query.page || 1;
+    const perPage = 2;
+    let totalItems;
     Post.find()
+        .countDocuments()
+        .then(count => {
+            totalItems = count;
+            return Post.find()
+                .skip((currentPage - 1) * perPage)
+                .limit(perPage);
+        })
         .then(posts => {
             res.status(200).json({
                 message: 'Fetching posts succeeded',
-                posts: posts
+                posts: posts,
+                totalItems: totalItems
             });
         })
         .catch(err => {
@@ -17,7 +28,7 @@ exports.getPosts = (req, res, next) => {
                 err.statusCode = 500;
             }
             next(err);
-        });
+        })
 }
 
 exports.createPost = (req, res, next) => {
@@ -136,9 +147,9 @@ exports.deletePost = (req, res, next) => {
             clearImage(post.imageUrl);
             return Post.findByIdAndRemove(postId);
         })
-        .then(result=>{
+        .then(result => {
             console.log(result);
-            res.status(200).json({message: 'Deleted post successfully!'})
+            res.status(200).json({ message: 'Deleted post successfully!' })
         })
         .catch(err => {
             if (!err.statusCode) {
