@@ -26,6 +26,7 @@ const fileFilter = (req, file, cb) => {
 }
 
 const feedRoutes = require('./router/feed');
+const authRoutes = require('./router/auth');
 const ENV_KEYS = require('./keys/keys');
 
 // app.use(bodyParser.urlencoded()); // x-www-form-urlencoded <<form post req>>
@@ -44,6 +45,7 @@ app.use((req, res, next) => {
 })
 
 app.use('/feed', feedRoutes);
+app.use('/auth', authRoutes);
 
 app.use((error, res, req, next) => {
     console.log(error);
