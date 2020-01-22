@@ -104,16 +104,41 @@ exports.updatePost = (req, res, next) => {
                 err.statusCode = 404;
                 throw err;
             }
-            if(imageUrl !== post.imageUrl){
+            if (imageUrl !== post.imageUrl) {
                 clearImage(post.imageUrl);
             }
-            post.title = title; 
+            post.title = title;
             post.imageUrl = imageUrl;
             post.content = content;
             return post.save();
         })
         .then(result => {
-            res.status(200).json({message: 'Post updated!', post: result});
+            res.status(200).json({ message: 'Post updated!', post: result });
+        })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
+}
+
+exports.deletePost = (req, res, next) => {
+    const postId = req.params.postId;
+    Post.findById(postId)
+        .then(post => {
+            if (!post) {
+                const err = new Error("Post does not exist!");
+                err.statusCode = 404;
+                throw err;
+            }
+            //check logged in user
+            clearImage(post.imageUrl);
+            return Post.findByIdAndRemove(postId);
+        })
+        .then(result=>{
+            console.log(result);
+            res.status(200).json({message: 'Deleted post successfully!'})
         })
         .catch(err => {
             if (!err.statusCode) {
@@ -124,6 +149,6 @@ exports.updatePost = (req, res, next) => {
 }
 
 const clearImage = filePath => {
-    filePath = path.join(__dirname,'..', filePath);
-    fs.unlink(filePath, err=>console.log(err));
+    filePath = path.join(__dirname, '..', filePath);
+    fs.unlink(filePath, err => console.log(err));
 }
