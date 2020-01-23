@@ -47,7 +47,7 @@ app.use((req, res, next) => {
 app.use('/feed', feedRoutes);
 app.use('/auth', authRoutes);
 
-app.use((error, res, req, next) => {
+app.use((error, req, res, next) => {
     console.log(error);
     const status = error.statusCode;
     const message = error.message;
