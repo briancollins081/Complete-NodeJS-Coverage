@@ -17,7 +17,7 @@ class App extends Component {
   state = {
     showBackdrop: false,
     showMobileNav: false,
-    isAuth: true,
+    isAuth: false,
     token: null,
     userId: null,
     authLoading: false,
@@ -100,18 +100,28 @@ class App extends Component {
   signupHandler = (event, authData) => {
     event.preventDefault();
     this.setState({ authLoading: true });
-    fetch('URL')
-      .then(res => {
-        if (res.status === 422) {
+    fetch('http://localhost:8080/auth/signup', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: authData.signupForm.email.value,
+        name: authData.signupForm.name.value,
+        password: authData.signupForm.password.value
+      })
+    })
+      .then(result => {
+        if (result.status == 422) {
           throw new Error(
             "Validation failed. Make sure the email address isn't used yet!"
           );
         }
-        if (res.status !== 200 && res.status !== 201) {
+        if (result.status !== 200 && result.status !== 201) {
           console.log('Error!');
           throw new Error('Creating a user failed!');
         }
-        return res.json();
+        return result.json();
       })
       .then(resData => {
         console.log(resData);
