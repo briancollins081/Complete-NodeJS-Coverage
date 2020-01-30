@@ -18,7 +18,7 @@ class SinglePost extends Component {
       Authorization: 'Bearer '+ this.props.token
     })
       .then(res => {
-        if (res.status !== 200) {
+        if (res.status !== 200 || res.status !== 200) {
           throw new Error('Failed to fetch status');
         }
         return res.json();
