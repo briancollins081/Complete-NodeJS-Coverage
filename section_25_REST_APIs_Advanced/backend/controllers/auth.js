@@ -3,6 +3,8 @@ const { validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+const keys = require('../keys/keys');
+
 exports.signup = (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -56,7 +58,7 @@ exports.login = (req, res, next) => {
             }
             const token = jwt.sign(
                 { email: loadedUser.email, userId: loadedUser._id.toString() },
-                '#hormenes#genes#viruses',
+                keys.JWT_SECRET,
                 { expiresIn: '1h' }
             );
             res.status(200).json({
