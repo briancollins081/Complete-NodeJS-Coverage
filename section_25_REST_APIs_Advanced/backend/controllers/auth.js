@@ -85,11 +85,39 @@ exports.getStatus = (req, res, next) => {
 
     User.findById(userId)
         .then(user => {
+            if (!user) {
+                const error = new Error('User not found');
+                error.statusCode = 404;
+                throw error;
+            }
             status = user.status;
-            res.status(200).json({status: status});
+            res.status(200).json({ status: status });
         })
-        .catch(err=>{
-            if(!err.statusCode){
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        })
+}
+
+exports.updateStatus = (req, res, next) => {
+    const userStatus = req.body.status;
+    User.findById(req.userId)
+        .then(user => {
+            if(!user){
+                const err = new Error("User not found!");
+                err.statusCode = 404;
+                throw err;
+            }
+            user.status = userStatus;
+            return user.save();
+        })
+        .then(result => {
+            res.json({message: 'User updated successfully', updatedUser: result});
+        })
+        .catch(err => {
+            if (!err.statusCode) {
                 err.statusCode = 500;
             }
             next(err);
