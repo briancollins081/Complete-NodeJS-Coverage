@@ -30,4 +30,6 @@ router.put('/signup', [
 
 router.post('/login', authController.login);
 
+router.get('/status', authController.getStatus);
+
 module.exports = router;

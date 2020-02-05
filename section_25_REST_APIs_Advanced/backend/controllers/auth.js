@@ -73,3 +73,25 @@ exports.login = (req, res, next) => {
             next(err);
         })
 }
+
+exports.getStatus = (req, res, next) => {
+    const userId = req.userId;
+    let status;
+    if (!userId) {
+        const error = new Error('User not logged in');
+        error.statusCode = 422;
+        throw error;
+    }
+
+    User.findById(userId)
+        .then(user => {
+            status = user.status;
+            res.status(200).json({status: status});
+        })
+        .catch(err=>{
+            if(!err.statusCode){
+                err.statusCode = 500;
+            }
+            next(err);
+        })
+}

@@ -31,7 +31,6 @@ exports.getPosts = (req, res, next) => {
             next(err);
         })
 }
-
 exports.createPost = (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -50,7 +49,7 @@ exports.createPost = (req, res, next) => {
     const content = req.body.content;
     let creator;
     let createdPost;
-    
+
     const post = new Post({
         title: title,
         imageUrl: imageUrl,
@@ -62,7 +61,7 @@ exports.createPost = (req, res, next) => {
             createdPost = result;
             return User.findById(req.userId)
         })
-        .then( user => {
+        .then(user => {
             user.posts.push(post);
             creator = user;
             return user.save();
@@ -76,7 +75,7 @@ exports.createPost = (req, res, next) => {
                     _id: creator._id,
                     name: creator.name
                 }
-            }); 
+            });
         })
         .catch(err => {
             if (!err.statusCode) {
@@ -131,7 +130,7 @@ exports.updatePost = (req, res, next) => {
                 err.statusCode = 404;
                 throw err;
             }
-            if(post.creator.toString() !== req.userId){
+            if (post.creator.toString() !== req.userId) {
                 const error = new Error("Not authorised to update this post!");
                 error.statusCode = 403;
                 throw error;
@@ -165,7 +164,7 @@ exports.deletePost = (req, res, next) => {
                 throw err;
             }
 
-            if(post.creator.toString() !== req.userId){
+            if (post.creator.toString() !== req.userId) {
                 const error = new Error("Not authorised to update this post!");
                 error.statusCode = 403;
                 throw error;
@@ -178,7 +177,7 @@ exports.deletePost = (req, res, next) => {
             return User.findById(req.userId);
         })
         .then(user => {
-            user.posts.pull({_id: postId});
+            user.posts.pull({ _id: postId });
             return user.save();
         })
         .then(result => {
