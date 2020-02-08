@@ -17,6 +17,7 @@ exports.getPosts = async (req, res, next) => {
 
         const posts = await Post.find()
             .populate('creator')
+            .sort({ createdAt: -1 })
             .skip((currentPage - 1) * perPage)
             .limit(perPage);
 
@@ -62,9 +63,9 @@ exports.createPost = async (req, res, next) => {
         await creator.posts.push(createdPost);
         await creator.save();
         io.getIO()
-            .emit('posts',{
-                action: 'create', 
-                post: {...post._doc, creator:{_id: req.userId, name: creator.name}}
+            .emit('posts', {
+                action: 'create',
+                post: { ...post._doc, creator: { _id: req.userId, name: creator.name } }
             });
         res.status(201).json({
             message: 'Post created successfully',
@@ -140,7 +141,7 @@ exports.updatePost = async (req, res, next) => {
         post.imageUrl = imageUrl;
         post.content = content;
         const savedPost = await post.save();
-        io.getIO().emit('posts', {action: 'update', post:savedPost});
+        io.getIO().emit('posts', { action: 'update', post: savedPost });
         res.status(200).json({ message: 'Post updated!', post: savedPost });
 
     } catch (err) {
@@ -172,12 +173,13 @@ exports.deletePost = async (req, res, next) => {
         const user = await User.findById(req.userId);
         user.posts.pull({ _id: postId });
         await user.save();
-        res.status(200).json({ message: 'Deleted post successfully!' });      
+        io.getIO().emit('posts', { action: 'delete' })
+        res.status(200).json({ message: 'Deleted post successfully!' });
     } catch (err) {
         if (!err.statusCode) {
             err.statusCode = 500;
-        } 
-        next(err);   
+        }
+        next(err);
     }
 }
 
