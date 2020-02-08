@@ -18,11 +18,11 @@ const fileFilter = (req, file, cb) => {
     if (file.mimetype === 'image/png' ||
         file.mimetype === 'image/jpg' ||
         file.mimetype === 'image/jpeg' ||
-        file.mimetype === 'image/svg'){
-            cb(null, true);
-        }else{
-            cb(null, false);
-        }
+        file.mimetype === 'image/svg') {
+        cb(null, true);
+    } else {
+        cb(null, false);
+    }
 }
 
 const feedRoutes = require('./router/feed');
@@ -33,7 +33,7 @@ const ENV_KEYS = require('./keys/keys');
 app.use(bodyParser.json()); //for json format data
 
 //add multer after body parser
-app.use(multer({storage: fileStorage, fileFilter: fileFilter}).single('image'));
+app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single('image'));
 
 app.use('/images', express.static(path.join(__dirname, 'images')));
 //set headers for all our server requests
@@ -57,7 +57,12 @@ app.use((error, req, res, next) => {
 
 mongoose.connect(ENV_KEYS.MONGO_DB_URL, { useUnifiedTopology: true, useNewUrlParser: true })
     .then(result => {
-        app.listen(8080);
+        const server = app.listen(8080);
+        const io = require('socket.io')(server);
+        io.on('connection', socket => {
+            console.log("Client connected successfully!");
+        })
+
     })
     .catch(err => {
         console.log(err);
