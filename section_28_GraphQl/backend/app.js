@@ -47,8 +47,17 @@ app.use((req, res, next) => {
 })
 app.use('/graphql', graphqlHTTP({
     schema: graphqlSchema,
-    rootValue:  graphqlResolvers,
-    graphiql: true
+    rootValue: graphqlResolvers,
+    graphiql: true,
+    formatError(err) {
+        if (!err.originalError) {
+            return err;
+        }
+        const message = err.message || 'An error occurred!';
+        const data = err.originalError.data;
+        const code = err.originalError.code || 500;
+        return { message: message, data: data, code: code };
+    }
 }))
 app.use((error, req, res, next) => {
     console.log(error);
@@ -60,7 +69,7 @@ app.use((error, req, res, next) => {
 
 mongoose.connect(ENV_KEYS.MONGO_DB_URL, { useUnifiedTopology: true, useNewUrlParser: true })
     .then(result => {
-       app.listen(8080);
+        app.listen(8080);
     })
     .catch(err => {
         console.log(err);
