@@ -8,6 +8,7 @@ const graphqlHTTP = require('express-graphql');
 
 const graphqlSchema = require('./graphql/schema');
 const graphqlResolvers = require('./graphql/resolvers');
+const authMiddleware = require('./middleware/auth');
 
 const app = express();
 const fileStorage = multer.diskStorage({
@@ -48,7 +49,11 @@ app.use((req, res, next) => {
         return res.sendStatus(200);
     }
     next();
-})
+});
+//for each request before it enters /graphql middleware
+//does not block requests but sets isAuth to boolean on the req object
+app.use(authMiddleware);
+
 app.use('/graphql', graphqlHTTP({
     schema: graphqlSchema,
     rootValue: graphqlResolvers, 
