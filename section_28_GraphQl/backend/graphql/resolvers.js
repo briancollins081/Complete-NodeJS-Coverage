@@ -42,25 +42,49 @@ module.exports = {
         }
 
     },
-    login: async function ({ email, password }) {
-        const user = await User.findOne({ email: email });
+    login: async function ({ loginInput }, req) {
+        console.log('Email passed in: ');
+        console.log(loginInput.email);
+        console.log('Password passed in: ');
+        console.log(loginInput.password);
+        let token;
+        let user
+        try {
+            user = await User.findOne({ email: loginInput.email });
+            console.log("USER");
+            console.log(user);
+        } catch (error) {
+            console.log("User Error!");
+            console.log(error);
+        }
+
         if (!user) {
             const error = new Error("User is not found");
             error.code = 401;
             throw error;
         }
-        const isEqual = await bcrypt.compare(password, user.password);
-        if (!isEqual) {
-            const error = new Error("Password do not match");
-            error.code = 401;
-            throw error;
+        try {
+            const isEqual = await bcrypt.compare(loginInput.password, user.password);
+            if (!isEqual) {
+                const error = new Error("Password do not match");
+                error.code = 401;
+                throw error;
+            }
+        } catch (error) {
+            console.log("Bcrypt Error");
+            console.log(error);
         }
-        const token = await jwt.sign(
-            { userId: user._id.toString(), email: user.email },
-            "secret for token 771818817818",
-            { expiresIn: '1h' }
-        );
+        try {
+            token = await jwt.sign(
+                { userId: user._id.toString(), email: user.email },
+                "secret for token 771818817818",
+                { expiresIn: '1h' }
+            );
+        } catch (error) {
+            console.log("Token Error");
 
-        return { token: token, userId: user._id.toString() }
+            console.log(error);
+        }
+        return { token: token, userId: user._id.toString() } || {}
     }
 }
