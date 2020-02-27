@@ -54,7 +54,7 @@ app.use((req, res, next) => {
 //does not block requests but sets isAuth to boolean on the req object
 app.use(authMiddleware);
 
-app.use('/graphql', graphqlHTTP({
+app.use('/graphql', graphqlHTTP({    
     schema: graphqlSchema,
     rootValue: graphqlResolvers, 
     graphiql: true,

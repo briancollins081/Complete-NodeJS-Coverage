@@ -4,7 +4,6 @@ const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
 const Post = require('../models/posts');
-const UserSChema = require('./schema');
 
 module.exports = {
     createUser: async function ({ userInput }, req) {
@@ -78,7 +77,7 @@ module.exports = {
         try {
             token = await jwt.sign(
                 { userId: user._id.toString(), email: user.email },
-                "secret for token 771818817818",
+                "#hormenes#genes#viruses",
                 { expiresIn: '1h' }
             );
         } catch (error) {
@@ -89,6 +88,7 @@ module.exports = {
         return { token: token, userId: user._id.toString() } || {}
     },
     createPost: async function ({ postInput }, req) {
+        // console.log("Entering create post resolver!")
         if (!req.isAuth) {
             const error = new Error("Not authenticated!");
             error.code = 401;
@@ -107,32 +107,30 @@ module.exports = {
             error.code = 422;
             throw error;
         }
+        // console.log("Create post resolver, NO errors thrown")
 
-        try {
-            const user = await User.findById(req.userId);
-            if(!user){
-                const error = new Error('Invalid user!');
-                error.code = 401;
-                throw error;  
-            }
-            const post = new Post({
-                title: postInput.title,
-                content: postInput.content,
-                imageUrl: postInput.imageUrl,
-                creator: user
-            });
-
-            const createdPost = await post.save();
-            user.posts.push(createdPost);
-        } catch (error) {
-            console.log(error)
+        const user = await User.findById(req.userId);
+        if (!user) {
+            const error = new Error('Invalid user!');
+            error.code = 401;
+            throw error;
         }
+        const post = new Post({
+            title: postInput.title,
+            content: postInput.content,
+            imageUrl: postInput.imageUrl,
+            creator: user
+        });
 
+        const createdPost = await post.save();
+        user.posts.push(createdPost);
+        // console.log("Finished updating")
         return {
             ...createdPost._doc,
             _id: createdPost._id.toString(),
-            createdAt: createdPost.createdAt.toIsoString(),
-            createdAt: updatedAt.updatedAt.toIsoString()
+            createdAt: createdPost.createdAt.toISOString(),
+            updatedAt: createdPost.updatedAt.toISOString()
         }
+
     }
 }

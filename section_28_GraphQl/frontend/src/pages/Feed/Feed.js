@@ -126,9 +126,6 @@ class Feed extends Component {
     this.setState({
       editLoading: true
     });
-
-    // Set up data (with image!)
-    //form data will set the correct headers automatically
     const formData = new FormData();
     formData.append('title', postData.title);
     formData.append('content', postData.content);
@@ -136,27 +133,38 @@ class Feed extends Component {
 
     let graphqlQuery = {
       query: `
-      mutation{
-        createPost(postInput:{
-          title:postData.title, 
-          content:postData.content, 
-          imageUrl:"https://dl181.zlibcdn.com/covers300/books/96/f8/bd/96f8bde85beb34f57ca72bd94e6af8c5.jpg"
-        }){
-          _id
-          title
+        mutation{
+          createPost(postInput:{
+            title:"${postData.title}", 
+            content:"${postData.content}", 
+            imageUrl:"https://dl181.zlibcdn.com/covers300/books/96/f8/bd/96f8bde85beb34f57ca72bd94e6af8c5.jpg"
+          }){
+            _id
+            title
+            content
+            imageUrl
+            creator{
+              name
+            }
+            createdAt
+          }
         }
-      }
       `
     }
-
+    // console.log("MY TOKEN: ", this.props.token);
+    
     fetch('http://localhost:8080/graphql', {
       method: 'POST',
       body: JSON.stringify(graphqlQuery),
       headers: {
-        Authorization: 'Bearer ' + this.props.token
+        'Authorization': 'Bearer ' + this.props.token,
+        'Content-Type': 'application/json'
       }
     })
       .then(res => {
+        console.log("POST IS DONE res is  : ");
+        console.log(res);
+
         return res.json();
       })
       .then(resData => {
@@ -165,7 +173,8 @@ class Feed extends Component {
             "Validation failed. Make sure the email address isn't used yet!"
           );
         }
-        if(resData.errors){
+        if (resData.errors) {
+          console.log(resData);
           throw new Error("Post creation failed!");
         }
         console.log(resData);
@@ -177,7 +186,7 @@ class Feed extends Component {
           createdAt: resData.post.createdAt
         };
         this.setState(prevState => {
-          return { 
+          return {
             isEditing: false,
             editPost: null,
             editLoading: false
