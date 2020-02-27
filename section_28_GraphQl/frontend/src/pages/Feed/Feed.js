@@ -162,9 +162,6 @@ class Feed extends Component {
       }
     })
       .then(res => {
-        console.log("POST IS DONE res is  : ");
-        console.log(res);
-
         return res.json();
       })
       .then(resData => {
@@ -179,11 +176,11 @@ class Feed extends Component {
         }
         console.log(resData);
         const post = {
-          _id: resData.post._id,
-          title: resData.post.title,
-          content: resData.post.content,
-          creator: resData.post.creator,
-          createdAt: resData.post.createdAt
+          _id: resData.data.createPost._id,
+          title: resData.data.createPost.title,
+          content: resData.data.createPost.content,
+          creator: resData.data.createPost.creator,
+          createdAt: resData.data.createPost.createdAt
         };
         this.setState(prevState => {
           return {

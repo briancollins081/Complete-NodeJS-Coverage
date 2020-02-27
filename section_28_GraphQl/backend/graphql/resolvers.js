@@ -124,6 +124,7 @@ module.exports = {
 
         const createdPost = await post.save();
         user.posts.push(createdPost);
+        await user.save();
         // console.log("Finished updating")
         return {
             ...createdPost._doc,

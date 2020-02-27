@@ -4,8 +4,7 @@ const keys = require('../keys/keys');
 
 module.exports = (req, res, next) => {
     const authHeader = req.get('Authorization');
-    console.log("Authorization " + authHeader);
-    
+    // console.log("Authorization " + authHeader);
     if(!authHeader){
         req.isAuth = false;
         return next();
