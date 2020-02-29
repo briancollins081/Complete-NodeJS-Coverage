@@ -17,6 +17,7 @@ module.exports = (req, res, next) => {
         decodedToken = jwt.verify(token, keys.JWT_SECRET);
     } catch (error) {
         req.isAuth = false;
+        req.userId = decodedToken.userId;
         return next();
     }
     if(!decodedToken){

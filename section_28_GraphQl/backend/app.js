@@ -1,5 +1,4 @@
 const path = require('path');
-const fs = require('fs')
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -10,6 +9,8 @@ const graphqlHTTP = require('express-graphql');
 const graphqlSchema = require('./graphql/schema');
 const graphqlResolvers = require('./graphql/resolvers');
 const authMiddleware = require('./middleware/auth');
+const { clearImage } = require('./util/file');
+
 
 const app = express();
 
@@ -60,16 +61,16 @@ app.use(authMiddleware);
 
 // image manenos
 app.put('/post-image', (req, res, next) => {
-    if(!req.isAuth){
+    if (!req.isAuth) {
         throw new Error('Not authenticated!')
     }
-    if(!req.file){
-        return res.status(200).json({message: "No image is uploaded!"})
+    if (!req.file) {
+        return res.status(200).json({ message: "No image is uploaded!" })
     }
-    if(req.body.oldPath){
+    if (req.body.oldPath) {
         clearImage(req.body.oldPath);
     }
-    return res.status(201).json({message: "File uploaded successful", filePath: req.file.path})
+    return res.status(201).json({ message: "File uploaded successful", filePath: req.file.path })
 });
 
 app.use('/graphql', graphqlHTTP({
@@ -101,9 +102,3 @@ mongoose.connect(ENV_KEYS.MONGO_DB_URL, { useUnifiedTopology: true, useNewUrlPar
     .catch(err => {
         console.log(err);
     });
-
-
-const clearImage = filePath => {
-    filePath = path.join(__dirname, '..', filePath);
-    fs.unlink(filePath, err => console.log(err));
-}

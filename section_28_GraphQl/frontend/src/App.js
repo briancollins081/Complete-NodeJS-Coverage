@@ -12,6 +12,7 @@ import SinglePostPage from './pages/Feed/SinglePost/SinglePost';
 import LoginPage from './pages/Auth/Login';
 import SignupPage from './pages/Auth/Signup';
 import './App.css';
+import auth from './pages/Auth/Auth';
 
 class App extends Component {
   state = {
@@ -61,7 +62,7 @@ class App extends Component {
     const graphqlQuery = {
       query: `
         {
-          login(loginInput:{email: "briancollins081@gmail.com", password:"12345"}){
+          login(loginInput:{email: "${authData.email}", password:"${authData.password}"}){
             token
             userId
           }
