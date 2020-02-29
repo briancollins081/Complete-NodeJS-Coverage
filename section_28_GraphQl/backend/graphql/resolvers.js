@@ -273,12 +273,60 @@ module.exports = {
             error.code = 403;
             throw error;
         }
-        
+
         clearImage(post.imageUrl);
         await Post.findByIdAndDelete(id);
         const user = await User.findById(req.userId);
         user.posts.pull(id);
         await user.save();
         return true;
+    },
+    postStatus: async function ({ statusInput }, req) {
+        // console.log("statusInput");
+        // console.log(statusInput.id, statusInput.status);
+        if (!req.isAuth) {
+            const error = new Error("Not authenticated!");
+            error.code = 401;
+            throw error;
+        }
+
+        const user = await User.findById(req.userId);
+
+        if (!user) {
+            const error = new Error("User does not exist!");
+            error.code = 401;
+            throw error;
+        }
+
+        user.status = statusInput.status;
+
+        await user.save();
+
+        return {
+            ...user._doc,
+            _id: user._id.toString()
+        };
+    },
+    status: async function (args, req) {
+        if (!req.isAuth) {
+            const error = new Error("Not authenticated!");
+            error.code = 401;
+            throw error;
+        }
+
+        const id = req.userId;
+        const user = await User.findById(id);
+        // console.log(user._doc)
+
+        if (!user) {
+            const error = new Error("User does not exist!");
+            error.code = 401;
+            throw error;
+        }
+
+        return {
+            ...user._doc,
+            _id: user._id.toString()
+        };
     }
 }

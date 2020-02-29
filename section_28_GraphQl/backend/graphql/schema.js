@@ -32,6 +32,9 @@ module.exports = buildSchema(`
         email: String!
         password: String!
     }
+    input StatusInput{
+        status: String!
+    }
     type AuthData {
         token: String!
         userId: String!
@@ -45,12 +48,14 @@ module.exports = buildSchema(`
         createPost(postInput: PostInputData):Post!
         updatePost(id:ID!, postInputData: PostInputData!):Post!
         deletePost(id:ID!):Boolean!
+        postStatus(statusInput: StatusInput!):User!
     }
 
     type RootQuery {
         login(loginInput: LoginInput):AuthData!
         posts(page: Int!):PostsData!
         post(postId: ID!):Post!
+        status:User!
     }
 
     schema {
