@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs')
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -11,6 +12,8 @@ const graphqlResolvers = require('./graphql/resolvers');
 const authMiddleware = require('./middleware/auth');
 
 const app = express();
+
+//multer variables - file management
 const fileStorage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, 'images');
@@ -45,18 +48,33 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     //prevent options request to reach graphql middleware
-    if(req.method === 'OPTIONS'){
+    if (req.method === 'OPTIONS') {
         return res.sendStatus(200);
     }
     next();
 });
+
 //for each request before it enters /graphql middleware
 //does not block requests but sets isAuth to boolean on the req object
 app.use(authMiddleware);
 
-app.use('/graphql', graphqlHTTP({    
+// image manenos
+app.put('/post-image', (req, res, next) => {
+    if(!req.isAuth){
+        throw new Error('Not authenticated!')
+    }
+    if(!req.file){
+        return res.status(200).json({message: "No image is uploaded!"})
+    }
+    if(req.body.oldPath){
+        clearImage(req.body.oldPath);
+    }
+    return res.status(201).json({message: "File uploaded successful", filePath: req.file.path})
+});
+
+app.use('/graphql', graphqlHTTP({
     schema: graphqlSchema,
-    rootValue: graphqlResolvers, 
+    rootValue: graphqlResolvers,
     graphiql: true,
     formacustomFormatErrorFn(err) {
         if (!err.originalError) {
@@ -83,3 +101,9 @@ mongoose.connect(ENV_KEYS.MONGO_DB_URL, { useUnifiedTopology: true, useNewUrlPar
     .catch(err => {
         console.log(err);
     });
+
+
+const clearImage = filePath => {
+    filePath = path.join(__dirname, '..', filePath);
+    fs.unlink(filePath, err => console.log(err));
+}

@@ -61,7 +61,7 @@ class App extends Component {
     const graphqlQuery = {
       query: `
         {
-          login(email: "${authData.email}", password: "${authData.password}") {
+          login(loginInput:{email: "briancollins081@gmail.com", password:"12345"}){
             token
             userId
           }
