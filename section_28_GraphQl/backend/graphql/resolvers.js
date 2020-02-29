@@ -188,7 +188,7 @@ module.exports = {
             throw error;
         }
         let fetchedPost = await Post.findById(id).populate('creator');
-        if(!fetchedPost){
+        if (!fetchedPost) {
             const error = new Error('No post found!');
             error.code = 404;
             throw error;
@@ -196,9 +196,59 @@ module.exports = {
 
         return {
             ...fetchedPost._doc,
-            _id:fetchedPost._id.toString(),
+            _id: fetchedPost._id.toString(),
             createdAt: fetchedPost.createdAt.toISOString(),
             updatedAt: fetchedPost.updatedAt.toISOString()
         };
+    },
+    updatePost: async function (args, req) {
+        if (!req.isAuth) {
+            const error = new Error("Not authenticated!");
+            error.code = 401;
+            throw error;
+        }
+        const id = args.id;
+        const postInputData = args.postInputData;
+
+        const post = await Post.findById(id).populate('creator');
+        if (!post) {
+            const error = new Error('No post found!');
+            error.code = 404;
+            throw error;
+        }
+
+        if (post.creator._id.toString() !== req.userId.toString()) {
+            const error = new Error("Not authorized!");
+            error.code = 403;
+            throw error;
+        }
+
+        const validationErrors = [];
+        if (validator.isEmpty(postInputData.title) || !validator.isLength(postInputData.title, { min: 5 })) {
+            validationErrors.push("Title is invalid");
+        }
+        if (validator.isEmpty(postInputData.content) || !validator.isLength(postInputData.content, { min: 5 })) {
+            validationErrors.push("Content is invalid");
+        }
+        if (validationErrors.length > 0) {
+            const error = new Error('Invalid input!');
+            error.data = validationErrors;
+            error.code = 422;
+            throw error;
+        }
+
+        post.title = postInputData.title;
+        post.content = postInputData.content;
+        if (postInputData.imageUrl !== 'undefined') {
+            post.imageUrl = postInputData.imageUrl;
+        }
+        const updatedPost = await post.save();
+
+        return {
+            ...updatedPost._doc,
+            _id: updatedPost._id.toString(),
+            createdAt: updatedPost.createdAt.toISOString(),
+            updatedAt: updatedPost.updatedAt.toISOString()
+        }
     }
 }
