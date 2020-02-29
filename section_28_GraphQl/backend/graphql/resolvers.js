@@ -135,11 +135,11 @@ module.exports = {
 
     },
     posts: async function (args, req) {
-        console.log(args);
-        
-        console.log("INSIDE POSTS RESOLVER - PAGE IS");
-        console.log(args.page);
-        
+        // console.log(args);
+
+        // console.log("INSIDE POSTS RESOLVER - PAGE IS");
+        // console.log(args.page);
+
 
         if (!req.isAuth) {
             const error = new Error("Not authenticated!");
@@ -152,23 +152,20 @@ module.exports = {
             page = 1;
         }
         const perPage = 3;
-        const skip = perPage * (page-1)
-        
-        console.log("Entering the query section");
-
+        const skip = perPage * (page - 1);
         const totalPosts = await Post.find().countDocuments();
-        console.log("Total Posts: "+totalPosts);
-        console.log("SKIP IS");
-        console.log(skip);
-        
-        
+        // console.log("Total Posts: " + totalPosts);
+        // console.log("SKIP IS");
+        // console.log(skip);
+
+
         const posts = await Post.find()
             .sort({ createdAt: -1 })
             .skip((+skip))
             .limit(perPage)
             .populate('creator');
 
-        console.log("POSTS");
+        // console.log("POSTS");
         // console.log(posts);
 
         return {
@@ -182,5 +179,26 @@ module.exports = {
             }),
             totalPosts: totalPosts
         }
+    },
+    post: async function (args, req) {
+        const id = args.postId;
+        if (!req.isAuth) {
+            const error = new Error("Not authenticated!");
+            error.code = 401;
+            throw error;
+        }
+        let fetchedPost = await Post.findById(id).populate('creator');
+        if(!fetchedPost){
+            const error = new Error('No post found!');
+            error.code = 404;
+            throw error;
+        }
+
+        return {
+            ...fetchedPost._doc,
+            _id:fetchedPost._id.toString(),
+            createdAt: fetchedPost.createdAt.toISOString(),
+            updatedAt: fetchedPost.updatedAt.toISOString()
+        };
     }
 }
