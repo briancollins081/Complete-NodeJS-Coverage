@@ -47,7 +47,7 @@ module.exports = buildSchema(`
 
     type RootQuery {
         login(loginInput: LoginInput):AuthData!
-        posts:PostsData!
+        posts(page: Int!):PostsData!
     }
 
     schema {

@@ -43,16 +43,16 @@ module.exports = {
 
     },
     login: async function ({ loginInput }, req) {
-        console.log('Email passed in: ');
-        console.log(loginInput.email);
-        console.log('Password passed in: ');
-        console.log(loginInput.password);
+        // console.log('Email passed in: ');
+        // console.log(loginInput.email);
+        // console.log('Password passed in: ');
+        // console.log(loginInput.password);
         let token;
         let user
         try {
             user = await User.findOne({ email: loginInput.email });
-            console.log("USER");
-            console.log(user);
+            // console.log("USER");
+            // console.log(user);
         } catch (error) {
             console.log("User Error!");
             console.log(error);
@@ -135,13 +135,42 @@ module.exports = {
 
     },
     posts: async function (args, req) {
+        console.log(args);
+        
+        console.log("INSIDE POSTS RESOLVER - PAGE IS");
+        console.log(args.page);
+        
+
         if (!req.isAuth) {
             const error = new Error("Not authenticated!");
             error.code = 401;
             throw error;
         }
+
+        let page = args.page;
+        if (!page || page === 0) {
+            page = 1;
+        }
+        const perPage = 3;
+        const skip = perPage * (page-1)
+        
+        console.log("Entering the query section");
+
         const totalPosts = await Post.find().countDocuments();
-        const posts = await Post.find().sort({ createdAt: -1 }).populate('creator');
+        console.log("Total Posts: "+totalPosts);
+        console.log("SKIP IS");
+        console.log(skip);
+        
+        
+        const posts = await Post.find()
+            .sort({ createdAt: -1 })
+            .skip((+skip))
+            .limit(perPage)
+            .populate('creator');
+
+        console.log("POSTS");
+        // console.log(posts);
+
         return {
             posts: posts.map(p => {
                 return {
