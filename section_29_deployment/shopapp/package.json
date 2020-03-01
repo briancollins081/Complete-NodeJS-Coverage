@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon app.js",
+    "start": "NODE_ENV=production MONGO_URI='mongodb+srv://abcnodejs:nodejs-complete@cluster0-h0swz.mongodb.net/shop?retryWrites=true&w=majority' PAYPAL_BUS_CLIENT_ID='AfsWxOVCxeqaqAC-9KeRrDeGZYCeQGY_lRxfgyxPbC4zGvB9TxF-dbn4ZIVIqXlZCmoy1z62poMgR7j-' PAYPAL_BUS_CLIENT_SECRET='ELaSLwTJ-a2exxXF7T9RXS7tqBTCRTHoTQ6mrY-WUK8c4HqwkGYbz6lFZv9oqM_73ABKGuLdzLCjTw9W' SENDGRID_API_KEY='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' PORT=3000 node app.js",
+    "start:dev": "nodemon app.js",
     "start-server": "node app.js"
   },
   "author": "Brian Andere",

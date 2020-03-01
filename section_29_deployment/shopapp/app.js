@@ -12,8 +12,7 @@ const multer = require('multer');
 const errorController = require('./controllers/error');
 const User = require('./models/user');
 
-const MONGODB_URI = 'mongodb://localhost:27017/shop';
-// const MONGODB_URI = 'mongodb+srv://abcnodejs:nodejs-complete@cluster0-h0swz.mongodb.net/shop';
+const MONGODB_URI = process.env.MONGO_URI;
 
 const app = express();
 const store = new MongoDBStore({
@@ -96,11 +95,11 @@ app.use(errorController.get404);
 app.use((error, req, res, next) => {
     res.redirect('/500');
 });
-
+// console.log(process.env.NODE_ENV)
 mongoose
     .connect(MONGODB_URI, { useUnifiedTopology: true, useNewUrlParser: true })
     .then(result => {
-        app.listen(3000);
+        app.listen(process.env.PORT || 3000);
     })
     .catch(err => {
         console.log(err);

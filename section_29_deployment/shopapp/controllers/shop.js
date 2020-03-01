@@ -6,12 +6,10 @@ const PDFDocument = require('pdfkit');
 const Product = require('../models/product');
 const Order = require('../models/order');
 
-const KEYS = require('../keys/keys');
-
 const paypalCheckoutSdk = require('@paypal/checkout-server-sdk');
 const paypalHttpClient = new paypalCheckoutSdk.core.PayPalHttpClient(
     new paypalCheckoutSdk.core.SandboxEnvironment(
-        KEYS.bus_client_id, KEYS.bus_secret
+        process.env.PAYPAL_BUS_CLIENT_ID, process.env.PAYPAL_BUS_CLIENT_SECRET
     )
 );
 
@@ -184,40 +182,36 @@ exports.postCheckout = async (req, res, next) => {
     let payerId = req.body.payerId;
     let facilitatorAccessToken = req.body.facilitatorAccessToken;
     // console.log(orderId, payerId, facilitatorAccessToken);
-    let request = new paypalCheckoutSdk.orders.OrdersGetRequest(orderId);
-    let response = await paypalHttpClient.execute(request);
-    
-    // console.log("RESPONSE:");
-    // console.log(response);
+    try {
+        let request = await new paypalCheckoutSdk.orders.OrdersGetRequest(orderId);
+        let response = await paypalHttpClient.execute(request);
 
-    req.user
-        .populate('cart.items.productId')
-        .execPopulate()
-        .then(user => {
-            const products = user.cart.items.map(i => {
-                return { quantity: i.quantity, product: { ...i.productId._doc } };
-            });
-            const order = new Order({
-                user: {
-                    email: req.user.email,
-                    userId: req.user
-                },
-                products: products,
-                paypal_order: response
-            });
-            return order.save();
-        })
-        .then(result => {
-            return req.user.clearCart();
-        })
-        .then(() => {
-            res.redirect('/orders');
-        })
-        .catch(err => {
-            const error = new Error(err);
-            error.httpStatus = 500;
-            return next(error);
+        // console.log("RESPONSE:");
+        // console.log(response);
+        const user = await req.user.populate('cart.items.productId')
+            .execPopulate();
+        const products = await user.cart.items.map(i => {
+            return { quantity: i.quantity, product: { ...i.productId._doc } };
         });
+        const order = new Order({
+            user: {
+                email: req.user.email,
+                userId: req.user
+            },
+            products: products,
+            paypal_order: response
+        });
+    /* const savedOrder =  */await order.save();
+        await req.user.clearCart();
+
+        res.redirect('/orders');
+
+    } catch (error) {
+        console.log("Error in postCheckout");
+        console.log(error);
+        error.httpStatus = 500;
+        return next(error);
+    }
 }
 /*
     To do
