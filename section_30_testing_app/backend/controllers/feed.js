@@ -59,7 +59,7 @@ exports.createPost = async (req, res, next) => {
         const createdPost = await post.save();
         const creator = await User.findById(req.userId);
         await creator.posts.push(createdPost);
-        await creator.save();
+        const savedUser = await creator.save();
         res.status(201).json({
             message: 'Post created successfully',
             post: createdPost,
@@ -68,6 +68,7 @@ exports.createPost = async (req, res, next) => {
                 name: creator.name
             }
         });
+        return savedUser;
     } catch (err) {
         if (!err.statusCode) {
             err.statusCode = 500;
@@ -165,12 +166,12 @@ exports.deletePost = async (req, res, next) => {
         const user = await User.findById(req.userId);
         user.posts.pull({ _id: postId });
         await user.save();
-        res.status(200).json({ message: 'Deleted post successfully!' });      
+        res.status(200).json({ message: 'Deleted post successfully!' });
     } catch (err) {
         if (!err.statusCode) {
             err.statusCode = 500;
-        } 
-        next(err);   
+        }
+        next(err);
     }
 }
 

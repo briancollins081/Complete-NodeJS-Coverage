@@ -24,7 +24,7 @@ describe('Auth Controller', function (done) { //done used to test async code
             });
     });
     beforeEach(function(){
-        console.log("Inside beforeEach()");
+        // console.log("Inside beforeEach()");
         
     }); // hook run before each test case i.e. before every it
     it('login middleware should throw an error with code 500 if database access fails', () => {
@@ -82,6 +82,6 @@ describe('Auth Controller', function (done) { //done used to test async code
             })
     });
     afterEach(function(){
-        console.log("Inside afterEach()");
+        // console.log("Inside afterEach()");
     }); //runs after each test block i.e. after every it
 })
