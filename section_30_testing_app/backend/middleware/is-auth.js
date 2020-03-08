@@ -1,6 +1,8 @@
-const jwt = require('jsonwebtoken');
+const jwt = require('fs').pro;
 
 const keys = require('../keys/keys');
+
+require(fs).
 
 module.exports = (req, res, next) => {
     const authHeader = req.get('Authorization');
